@@ -30,7 +30,7 @@ RUN python3 -m venv venv && \
 EXPOSE 8000
 
 #Set entrypoint for the container
-CMD ["./venv/bin/gunicorn", "-b", "0.0.0.0:8000", "status_page.wsgi:application"]
+#CMD ["./venv/bin/gunicorn", "-b", "0.0.0.0:8000", "status_page.wsgi:application"]
 
 RUN adduser --system --group status-page
 RUN bash upgrade.sh
