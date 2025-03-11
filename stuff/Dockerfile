@@ -4,6 +4,7 @@ FROM ubuntu:latest
 
 # Update the package list and install essential packages
 RUN apt-get update && apt-get install -y \
+    systemctl \
     curl \
     vim \
     git \
@@ -30,19 +31,27 @@ COPY opt .
 EXPOSE 8000
 #add user
 RUN adduser --system --group status-page
-# #start upgrade file
+
+# # Install redis
+# RUN apt-get update && apt-get install -y redis-server
+
+# # Install redis server
+# RUN redis-server &
+
+# # #start upgrade file
 # RUN status-page/upgrade.sh
-# # Add the superuser creation script
+# # # Add the superuser creation script
 # RUN echo '#!/bin/bash \n\
-# source /opt/status-page/venv/bin/activate \n\
-# cd /opt/status-page/statuspage \n\
+# source status-page/venv/bin/activate \n\
+# cd status-page/statuspage \n\
 # python3 manage.py createsuperuser --noinput --username admin --email admin@example.com --password Aa123456' > /usr/local/bin/create_superuser.sh \
-#     && chmod +x /usr/local/bin/create_superuser.sh
+#      && chmod +x /usr/local/bin/create_superuser.sh
 
-# Create a superuser during build time (uncomment to automatically create)
-#RUN /usr/local/bin/create_superuser.sh
+# # Create a superuser during build time (uncomment to automatically create)
+# RUN bash /usr/local/bin/create_superuser.sh
 
-# RUN cp /opt/status-page/contrib/gunicorn.py /opt/status-page/gunicorn.py
-# RUN cp -v /opt/status-page/contrib/*.service /etc/systemd/system/ sudo systemctl daemon-reload
+# RUN cp status-page/contrib/gunicorn.py /status-page/gunicorn.py
+# RUN cp -v status-page/contrib/*.service /etc/systemd/system/  
+# RUN systemctl daemon-reload
 # RUN systemctl start status-page status-page-scheduler status-page-rq
 # RUN systemctl enable status-page status-page-scheduler status-page-rq

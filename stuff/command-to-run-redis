@@ -1,0 +1,1 @@
+docker run -d --name my-redis5 -p 6379:6379 redis
