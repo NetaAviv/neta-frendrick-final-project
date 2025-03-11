@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Set the working directory inside the container
-WORKDIR /
+WORKDIR /opt
 
 # Optional: Copy local files into the container (adjust paths as needed)
 COPY opt .

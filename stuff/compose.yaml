@@ -21,7 +21,16 @@ services:
       - mynetwork
     environment:
       REDIS_HOST: redis-server  # Pass Redis hostname to the app
-    command: ["/bin/bash", "-c", "sleep 5 && ./status-page/upgrade.sh"]
+
+    command: >
+      /bin/bash -c "
+      echo 'Running upgrade.sh...' &&
+      bash /opt/status-page/upgrade.sh &&
+      echo 'Creating superuser...' &&
+      source /opt/status-page/venv/bin/activate &&
+      cd /opt/status-page/statuspage &&
+      echo 'Starting Django server...' &&
+      python3 manage.py runserver 0.0.0.0:8000 --insecure"
 
 networks:
   mynetwork:
