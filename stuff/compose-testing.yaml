@@ -29,10 +29,13 @@ services:
       /bin/bash -c "
       echo 'Running upgrade.sh...' &&
       bash /opt/status-page/upgrade.sh &&
-      echo 'Creating superuser...' &&
+      echo 'starting gunicorn...' &&      
       source /opt/status-page/venv/bin/activate &&
+      export PYTHONPATH=/opt/status-page/statuspag &&
+      gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage &&
       cd /opt/status-page/statuspage &&
       echo 'Starting Django server...' &&
+      cd /opt/status-page/statuspage &&
       python3 manage.py runserver 0.0.0.0:8000 --insecure"
 
   nginx:

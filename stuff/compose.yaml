@@ -29,11 +29,22 @@ services:
       /bin/bash -c "
       echo 'Running upgrade.sh...' &&
       bash /opt/status-page/upgrade.sh &&
-      echo 'Creating superuser...' &&
+      echo 'starting gunicorn...' &&      
       source /opt/status-page/venv/bin/activate &&
-      cd /opt/status-page/statuspage &&
-      echo 'Starting Django server...' &&
-      python3 manage.py runserver 0.0.0.0:8000 --insecure"
+      export PYTHONPATH=/opt/status-page/statuspag &&
+      gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - status-page
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
