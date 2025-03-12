@@ -35,6 +35,18 @@ services:
       echo 'Starting Django server...' &&
       python3 manage.py runserver 0.0.0.0:8000 --insecure"
 
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - status-page
+    networks:
+      - mynetwork
+
 networks:
   mynetwork:
     driver: bridge
