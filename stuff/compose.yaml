@@ -25,12 +25,18 @@ services:
       - "8000:8000"
       - "8001:8001"
     hostname: status-page-server
+    volumes:
+      - static_files:/opt/status-page/statuspage/static
+
     command: >
       /bin/bash -c "
       echo 'Running upgrade.sh...' &&
       bash /opt/status-page/upgrade.sh &&
-      echo 'starting gunicorn...' &&      
       source /opt/status-page/venv/bin/activate &&
+      python3 /opt/status-page/statuspage/manage.py collectstatic --noinput &&
+      echo 'Setting permissions for static files...' &&
+      chmod -R 755 /opt/status-page/statuspage/static &&
+      echo 'starting gunicorn...' &&      
       export PYTHONPATH=/opt/status-page/statuspag &&
       gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
 
@@ -45,7 +51,12 @@ services:
       - status-page
     networks:
       - mynetwork
+    volumes:
+      - static_files:/opt/status-page/statuspage/static
 
 networks:
   mynetwork:
     driver: bridge
+
+volumes:
+  static_files: 
