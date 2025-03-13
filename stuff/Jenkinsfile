@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('* * * * *') // Remove this if using GitHub Webhooks
+    }
+
+    stages {
+        stage('Check for Changes') {
+            when {
+                changeset "**/stuff/opt/status-page/**"
+            }
+            steps {
+                echo "Saw changes in the stuff/opt/status-page path!"
+            }
+        }
+    }
+}
