@@ -1,17 +1,24 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('* * * * *') // Remove this if using GitHub Webhooks
+    options {
+        skipDefaultCheckout()
     }
 
     stages {
-        stage('Check for Changes') {
-            when {
-                changeset "**/stuff/opt/status-page/**"
-            }
+        stage('Checkout') {
             steps {
-                echo "Saw changes in the stuff/opt/status-page path!"
+                script {
+                    checkout scm
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split('\n')
+                    
+                    if (!changedFiles.any { it.startsWith('stuff/opt/status-page/') }) {
+                        echo "No changes in 'stuff/opt/status-page/'. Skipping build."
+                        currentBuild.result = 'ABORTED'
+                        return
+                    }
+                    echo "Saw changes in the stuff/opt/status-page path!"
+                }
             }
         }
     }
