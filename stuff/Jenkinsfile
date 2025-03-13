@@ -21,5 +21,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Test Node Connection & Docker Access') {
+            agent { label 'ubuntu-node' } // Use the new node
+            steps {
+                script {
+                    echo "Connected to testing server!"
+                    def dockerOutput = sh(script: "docker ps", returnStatus: true)
+
+                    if (dockerOutput == 0) {
+                        echo "Was allowed to use Docker!"
+                    } else {
+                        error("Docker access failed! Check permissions.")
+                    }
+                }
+            }
+        }
     }
 }
