@@ -17,7 +17,7 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 # Copy custom Nginx configuration file to the container
 COPY nginx.conf /etc/nginx/nginx.conf
-# COPY opt/status-page/statuspage/static/ /opt/status-page/statuspage/static/
+COPY opt/status-page/statuspage/static/ /opt/status-page/statuspage/static/
 
 
 # Remove the default site and enable the custom status-page configuration
@@ -28,4 +28,4 @@ RUN rm -f /etc/nginx/sites-enabled/default && \
 EXPOSE 80 443
 
 # Set the entrypoint for the Nginx process
-CMD ["nginx", "-g", "daemon off;"]
+# CMD ["nginx", "-g", "daemon off;"]

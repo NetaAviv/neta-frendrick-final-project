@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-page
+  labels:
+    app: status-page
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: status-page
+  template:
+    metadata:
+      labels:
+        app: status-page
+    spec:
+      containers:
+        - name: status-page-latest
+          image: my-image:latest
+          imagePullPolicy: Never
+          command: ["/bin/bash", "-c"]
+          args:
+            - echo starting;
+              bash /opt/status-page/upgrade.sh ;
+              source /opt/status-page/venv/bin/activate &&
+              export PYTHONPATH=/opt/status-page/statuspag &&
+              cd /opt/status-page/statuspage &&
+              python3 manage.py runserver 0.0.0.0:8000 --insecure
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: status-page-server
+spec:
+  selector:
+    app: status-page
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+  type: ClusterIP
+
