@@ -51,6 +51,9 @@ jobs:
         run: |
           docker ps -a  # Check all containers' status to ensure they are running
 
+      - name: Check status-page logs
+        run: docker logs status-page
+
       - name: Test Application with cURL
         run: |
            curl -fkL http://localhost:8000 || exit 1
