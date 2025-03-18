@@ -7,62 +7,41 @@ on:
   workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
 
 jobs:
-  build-and-test:
+  deploy-to-ec2:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Get Latest Version Number
-        id: get-version
+      - name: Set Up SSH Access
         run: |
-          REPO_URI="992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project"
-          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text 2>/dev/null || echo "version-0")
-          echo "Latest found: $LATEST_VERSION"
-          VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
-          NEW_VERSION="version-$VERSION_NUMBER"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
-      - name: Install Docker Compose
+      - name: Copy Files to EC2
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          scp -r stuff/ ubuntu@${{ secrets.EC2_PUBLIC_IP }}:~/app/
 
-      - name: Set up Docker Compose and Build
+      - name: Run Docker Compose on EC2
         run: |
-          docker-compose -f stuff/compose.yaml build
-
-      - name: Run Docker Containers with Compose
-        run: |
-          docker-compose -f stuff/compose.yaml up -d
+          ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd ~/app/
+            docker-compose -f stuff/compose.yaml pull
+            docker-compose -f stuff/compose.yaml up -d --build
+          EOF
 
       - name: Wait for the App to Start
-        run: sleep 120  # Give it time to initialize
-
-      - name: Check Docker Containers
-        run: |
-          docker ps -a  # Check all containers' status to ensure they are running
-
-      - name: Check status-page logs
-        run: docker logs status-page
+        run: sleep 60  # Reduce wait time since it's running on EC2
 
       - name: Test Application with cURL
         run: |
-           curl -fkL http://localhost:8000 || exit 1
-
-      - name: Stop and Remove Containers
-        run: docker-compose -f stuff/compose.yaml down
+          curl -vkL http://${{ secrets.EC2_PUBLIC_IP }}:8000 || exit 1
 
   push-to-ecr:
-    needs: build-and-test  # Only runs if 'build-and-test' succeeds
+    needs: deploy-to-ec2
     runs-on: ubuntu-latest
 
     steps:
@@ -76,12 +55,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Build Docker Image and Push to ECR
+      - name: Build and Push Docker Image to ECR
         run: |
           docker-compose -f stuff/compose.yaml build
           docker-compose -f stuff/compose.yaml push
