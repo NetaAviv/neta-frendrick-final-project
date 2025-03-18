@@ -1,0 +1,71 @@
+name: Test and Deploy Status Page
+
+on:
+  push:
+    branches:
+      - test  # Only runs when changes are pushed to the 'test' branch
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Get Latest Version Number
+        id: get-version
+        run: |
+          REPO_URI="992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project"
+          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text 2>/dev/null || echo "version-0")
+          echo "Latest found: $LATEST_VERSION"
+          VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
+          NEW_VERSION="version-$VERSION_NUMBER"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        run: |
+          docker build -t 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION .
+          docker tag 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest
+
+      - name: Run Docker Containers
+        run: |
+          docker compose up -d
+
+      - name: Wait for the App to Start
+        run: sleep 10  # Give it time to initialize
+
+      - name: Test Application with cURL
+        run: |
+          curl -f http://localhost || exit 1
+
+      - name: Stop and Remove Containers
+        run: docker compose down
+
+  push-to-ecr:
+    needs: build-and-test  # Only runs if 'build-and-test' succeeds
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION
+          docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest
