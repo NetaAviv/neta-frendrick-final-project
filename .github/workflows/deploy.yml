@@ -49,7 +49,7 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fL http://localhost || exit 1
+          curl -fkL http://localhost || exit 1
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
