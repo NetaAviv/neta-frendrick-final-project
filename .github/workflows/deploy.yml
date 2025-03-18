@@ -31,14 +31,13 @@ jobs:
           NEW_VERSION="version-$VERSION_NUMBER"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Build Docker Image
+      - name: Set up Docker Compose
         run: |
-          docker build -t 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION .
-          docker tag 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest
+          docker-compose -f stuff/compose.yaml build
 
-      - name: Run Docker Containers
+      - name: Run Docker Containers with Compose
         run: |
-          docker compose up -d
+          docker-compose -f stuff/compose.yaml up -d
 
       - name: Wait for the App to Start
         run: sleep 10  # Give it time to initialize
@@ -48,7 +47,7 @@ jobs:
           curl -f http://localhost || exit 1
 
       - name: Stop and Remove Containers
-        run: docker compose down
+        run: docker-compose -f stuff/compose.yaml down
 
   push-to-ecr:
     needs: build-and-test  # Only runs if 'build-and-test' succeeds
@@ -67,5 +66,4 @@ jobs:
 
       - name: Push Docker Image to ECR
         run: |
-          docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION
-          docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest
+          docker-compose -f stuff/compose.yaml push
