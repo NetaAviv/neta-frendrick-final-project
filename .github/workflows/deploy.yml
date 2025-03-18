@@ -45,7 +45,7 @@ jobs:
           docker-compose -f stuff/compose.yaml up -d
 
       - name: Wait for the App to Start
-        run: sleep 30  # Give it time to initialize
+        run: sleep 120  # Give it time to initialize
 
       - name: Check Docker Containers
         run: |
