@@ -84,14 +84,18 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
         
+      - name: Build Docker Image
+        run: docker-compose -f stuff/compose.yaml build stuff-status-page
+
       - name: Check $NEW_VERSION
         run: echo $NEW_VERSION
 
-
-      - name: Build and Push status-page Image to ECR
+      - name: Build and Push stuff-status-page Image to ECR
         run: |
-          docker tag status-page:latest $REPO_URI:status-page-$NEW_VERSION
-          docker push $REPO_URI:status-page-$NEW_VERSION
+            echo "Repo URI: $REPO_URI"
+            echo "New Version: $NEW_VERSION"
+            docker tag stuff-status-page:latest $REPO_URI:stuff-status-page-$NEW_VERSION
+            docker push $REPO_URI:stuff-status-page-$NEW_VERSION
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
