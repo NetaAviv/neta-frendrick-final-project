@@ -8,6 +8,7 @@ on:
 
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
+  AWS_REGION: us-east-1
 
 jobs:
   build-and-test:
@@ -20,9 +21,17 @@ jobs:
       - name: Get Latest Version Number
         id: get-version
         run: |
-          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text 2>/dev/null || echo "version-0")
+          # Find the latest version of the status-page image
+          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project \
+            --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
+            --output text 2>/dev/null | grep -o 'version-[0-9]*' || echo "version-0")
+
+          # Extract the number and increment
           VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
-          echo "NEW_VERSION=version-$VERSION_NUMBER" >> $GITHUB_ENV
+          NEW_VERSION="version-$VERSION_NUMBER"
+
+          # Save version for later steps
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Install Docker Compose
         run: |
@@ -46,7 +55,7 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fkL https://localhost:443 || exit 1  # Replace with your actual EC2 IP and exposed port
+          curl -fkL http://<EC2_PUBLIC_IP>:<PORT> || exit 1  # Replace with actual EC2 IP and exposed port
 
   push-to-ecr:
     needs: build-and-test
@@ -58,11 +67,13 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ${{ env.AWS_REGION }}
 
-      - name: Build Docker Image and Push to ECR
+      - name: Build and Push status-page Image to ECR
         run: |
-          docker tag status-page:latest $REPO_URI:$NEW_VERSION
-          docker push $REPO_URI:$NEW_VERSION
+          docker tag status-page:latest $REPO_URI/status-page:$NEW_VERSION
+          docker push $REPO_URI/status-page:$NEW_VERSION
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
