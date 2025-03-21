@@ -60,7 +60,7 @@ jobs:
         run: docker ps -a
 
       - name: Check status-page logs
-        run: docker logs stuff-status-page
+        run: docker logs status-page
 
       - name: Test Application with cURL
         run: |
@@ -86,8 +86,8 @@ jobs:
 
       - name: Build and Push status-page Image to ECR
         run: |
-          docker tag stuff-status-page:latest $REPO_URI/stuff-status-page:$NEW_VERSION
-          docker push $REPO_URI/stuff-status-page:$NEW_VERSION
+          docker tag status-page:latest $REPO_URI/status-page:$NEW_VERSION
+          docker push $REPO_URI/status-page:$NEW_VERSION
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
