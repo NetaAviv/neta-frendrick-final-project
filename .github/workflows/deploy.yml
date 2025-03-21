@@ -86,7 +86,7 @@ jobs:
 
       - name: Build and Push status-page Image to ECR
         run: |
-          docker tag status-page:latest $REPO_URI/status-page:$NEW_VERSION
+          docker tag status-page:latest $REPO_URI:$NEW_VERSION
           docker push $REPO_URI/status-page:$NEW_VERSION
 
       - name: Stop and Remove Containers
