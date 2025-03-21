@@ -48,7 +48,7 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fkL http://3.222.185.0:8001 || exit 1  # Replace with EC2 public IP
+          curl -fkL http://localhost:8001 || exit 1  # Replace with EC2 public IP
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
