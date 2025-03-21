@@ -65,3 +65,5 @@ jobs:
         run: |
           docker-compose -f stuff/compose.yaml build
           docker-compose -f stuff/compose.yaml push
+          docker tag status-page 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION          
+          docker push status-page 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION
