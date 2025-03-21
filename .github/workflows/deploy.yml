@@ -18,17 +18,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Debug AWS Region and Key
+      - name: Debug AWS Credentials
         run: |
-          echo "AWS Region: ${{ secrets.AWS_REGION }}"
-          echo "AWS Access Key ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
+          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID }}"  # This will NOT expose the key
+          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"  # This will NOT expose the key
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Get Latest Version Number
         id: get-version
@@ -64,7 +64,7 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fkL https://localhost:443 || exit 1  # Replace with actual EC2 IP and exposed port
+          curl -fkL http://<EC2_PUBLIC_IP>:<PORT> || exit 1  # Replace with actual EC2 IP and exposed port
 
   push-to-ecr:
     needs: build-and-test
@@ -79,7 +79,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
