@@ -6,9 +6,12 @@ on:
       - test
   workflow_dispatch:
 
+env:
+  REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
+
 jobs:
   build-and-test:
-    runs-on: self-hosted  # Now using your EC2 instance
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Repository
@@ -17,41 +20,33 @@ jobs:
       - name: Get Latest Version Number
         id: get-version
         run: |
-          REPO_URI="992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project"
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text 2>/dev/null || echo "version-0")
           VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
-          NEW_VERSION="version-$VERSION_NUMBER"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=version-$VERSION_NUMBER" >> $GITHUB_ENV
 
       - name: Install Docker Compose
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Set up Docker Compose and Build
-        run: |
-          docker-compose -f stuff/compose.yaml build
+        run: docker-compose -f stuff/compose.yaml build
 
       - name: Run Docker Containers with Compose
-        run: |
-          docker-compose -f stuff/compose.yaml up -d
+        run: docker-compose -f stuff/compose.yaml up -d
 
       - name: Wait for the App to Start
         run: sleep 120
 
       - name: Check Docker Containers
-        run: |
-          docker ps -a  # Check all containers' status to ensure they are running
+        run: docker ps -a
 
       - name: Check status-page logs
         run: docker logs status-page
 
       - name: Test Application with cURL
         run: |
-          curl -fkL https://localhost:443 || exit 1  # Replace with EC2 public IP
-
-      - name: Stop and Remove Containers
-        run: docker-compose -f stuff/compose.yaml down
+          curl -fkL https://localhost:443 || exit 1  # Replace with your actual EC2 IP and exposed port
 
   push-to-ecr:
     needs: build-and-test
@@ -61,9 +56,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: Build Docker Image and Push to ECR
         run: |
-          docker-compose -f stuff/compose.yaml build
-          docker-compose -f stuff/compose.yaml push
-          docker tag status-page 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION          
-          docker push status-page 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:$NEW_VERSION
+          docker tag status-page:latest $REPO_URI:$NEW_VERSION
+          docker push $REPO_URI:$NEW_VERSION
+
+      - name: Stop and Remove Containers
+        run: docker-compose -f stuff/compose.yaml down
