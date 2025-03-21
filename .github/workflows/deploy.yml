@@ -18,19 +18,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Get Latest Version Number
         id: get-version
         run: |
-          # Find the latest version of the status-page image
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project \
             --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
             --output text 2>/dev/null | grep -o 'version-[0-9]*' || echo "version-0")
 
-          # Extract the number and increment
           VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
           NEW_VERSION="version-$VERSION_NUMBER"
 
-          # Save version for later steps
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Install Docker Compose
@@ -45,13 +49,13 @@ jobs:
         run: docker-compose -f stuff/compose.yaml up -d
 
       - name: Wait for the App to Start
-        run: sleep 180
+        run: sleep 150
 
       - name: Check Docker Containers
         run: docker ps -a
 
       - name: Check status-page logs
-        run: docker logs status-page
+        run: docker logs stuff-status-page
 
       - name: Test Application with cURL
         run: |
@@ -65,15 +69,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ${{ env.AWS_REGION }}
 
       - name: Build and Push status-page Image to ECR
         run: |
-          docker tag status-page:latest $REPO_URI/status-page:$NEW_VERSION
-          docker push $REPO_URI/status-page:$NEW_VERSION
+          docker tag stuff-status-page:latest $REPO_URI/stuff-status-page:$NEW_VERSION
+          docker push $REPO_URI/stuff-status-page:$NEW_VERSION
 
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
+
+      - name: Delete All Running Containers (Cleanup)
+        run: |
+          docker ps -q | xargs -r docker stop
+          docker ps -aq | xargs -r docker rm
