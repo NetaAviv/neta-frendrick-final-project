@@ -24,6 +24,13 @@ spec:
               source /opt/status-page/venv/bin/activate &&
               export PYTHONPATH=/opt/status-page/statuspag &&
               gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
+          volumeMounts:
+            - name: efs-storage
+              mountPath: /mnt/efs/opt/status-page  # Mount the EFS volume at this path inside your container
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: efs-pvc  # Reference the PVC you created
 #          volumeMounts:
 #            - name: ebs-volume
 #              mountPath: /opt/status-page  # Adjust this to the appropriate path inside the container where you want to mount the volume

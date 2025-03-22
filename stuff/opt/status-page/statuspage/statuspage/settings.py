@@ -463,3 +463,14 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+# Enable secure cookies (HTTPS only)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Strict CSRF validation
+CSRF_TRUSTED_ORIGINS = [
+    "https://statuspage-neta-fred.click",
+]
+
+# Let Django know the site’s domain (if you haven’t already)
+ALLOWED_HOSTS += ["statuspage-neta-fred.click"]    

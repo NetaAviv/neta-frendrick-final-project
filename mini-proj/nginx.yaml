@@ -15,12 +15,12 @@ spec:
       containers:
       - name: nginx-server
         # image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:nginx
-        image: nginx
-        imagePullPolicy: Always
-        volumeMounts:
-          - name: config-volume
-            mountPath: /etc/nginx/nginx.conf
-            subPath: nginx.conf
+        image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:nginx-test
+        # imagePullPolicy: Always
+        # volumeMounts:
+        #   - name: config-volume
+        #     mountPath: /etc/nginx/nginx.conf
+        #     subPath: nginx.conf
         command: ["/bin/bash", "-c"]
         args:
            - |
@@ -28,11 +28,11 @@ spec:
               echo "📁 Creating NGINX directory structure...";
               mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled;
 
-              echo "🔐 Creating self-signed certificate...";
-              openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-                -subj "/C=US/ST=None/L=None/O=K8S/CN=localhost" \
-                -keyout /etc/ssl/private/status-page.key \
-                -out /etc/ssl/certs/status-page.crt;
+              # echo "🔐 Creating self-signed certificate...";
+              # openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+              #   -subj "/C=US/ST=None/L=None/O=K8S/CN=localhost" \
+              #   -keyout /etc/ssl/private/status-page.key \
+              #   -out /etc/ssl/certs/status-page.crt;
 
               echo "🔗 Linking config into sites-enabled...";
               rm -f /etc/nginx/sites-enabled/default;
@@ -45,15 +45,19 @@ spec:
         # ports:
         # - containerPort: 80
         # - containerPort: 443
-      volumes:
-        - name: config-volume
-          configMap:
-            name: nginx-config
+      # volumes:
+      #   - name: config-volume
+      #     configMap:
+      #       name: nginx-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx-server
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:992382545251:certificate/fcf5e0fa-9c8c-444e-8ba1-957231dad5ae
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
 spec:
   selector:
     app: nginx-server
@@ -65,5 +69,5 @@ spec:
     - name: https
       protocol: TCP
       port: 443
-      targetPort: 443
+      targetPort: 80
   type: LoadBalancer
