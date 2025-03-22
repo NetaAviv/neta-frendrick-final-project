@@ -9,8 +9,8 @@ spec:
   restartPolicy: Never
   containers:
     - name: app
-      image: my-image:latest
-      imagePullPolicy: Never
+      image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:app
+      # imagePullPolicy: Never
       command: ["/bin/bash", "-c"]
       args:
         - echo starting;
@@ -19,15 +19,15 @@ spec:
           export PYTHONPATH=/opt/status-page/statuspag &&
           gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: status-page-server
-spec:
-  selector:
-    app: status-page
-  ports:
-    - protocol: TCP
-      port: 8001
-      targetPort: 8001
-  type: ClusterIP
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: status-page-server
+# spec:
+#   selector:
+#     app: status-page
+#   ports:
+#     - protocol: TCP
+#       port: 8001
+#       targetPort: 8001
+#   type: ClusterIP

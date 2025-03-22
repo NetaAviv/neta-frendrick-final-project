@@ -17,10 +17,6 @@ spec:
       containers:
         - name: status-page-latest
           image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:app
-          # imagePullPolicy: Never
-          # volumeMounts:
-          # - name: efs-volume
-          #   mountPath: /opt/status-page
           command: ["/bin/bash", "-c"]
           args:
             - echo starting;
@@ -28,11 +24,13 @@ spec:
               source /opt/status-page/venv/bin/activate &&
               export PYTHONPATH=/opt/status-page/statuspag &&
               gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
-      # volumes:
-      #   - name: efs-volume
-      #     persistentVolumeClaim:
-      #       claimName: efs-pvc
-
+#          volumeMounts:
+#            - name: ebs-volume
+#              mountPath: /opt/status-page  # Adjust this to the appropriate path inside the container where you want to mount the volume
+#      volumes:
+#        - name: ebs-volume
+#          persistentVolumeClaim:
+#            claimName: ebs-pvc  # Reference your PVC here
 ---
 apiVersion: v1
 kind: Service
@@ -46,4 +44,3 @@ spec:
       port: 8001
       targetPort: 8001
   type: ClusterIP
-

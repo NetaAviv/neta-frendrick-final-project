@@ -14,12 +14,41 @@ spec:
     spec:
       containers:
       - name: nginx-server
-        image: nginx:latest
-        imagePullPolicy: Always  # Add this line
-        command: ["nginx", "-g", "daemon off;"]
+        # image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:nginx
+        image: nginx
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+        command: ["/bin/bash", "-c"]
+        args:
+           - |
+
+              echo "📁 Creating NGINX directory structure...";
+              mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled;
+
+              echo "🔐 Creating self-signed certificate...";
+              openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -subj "/C=US/ST=None/L=None/O=K8S/CN=localhost" \
+                -keyout /etc/ssl/private/status-page.key \
+                -out /etc/ssl/certs/status-page.crt;
+
+              echo "🔗 Linking config into sites-enabled...";
+              rm -f /etc/nginx/sites-enabled/default;
+              ln -s /etc/nginx/sites-available/status-page.conf /etc/nginx/sites-enabled/status-page.conf;
+
+              echo "🚀 Starting NGINX...";
+              nginx -g 'daemon off;'
+              
+        # command: ["nginx", "-g", "daemon off;"]
         # ports:
         # - containerPort: 80
         # - containerPort: 443
+      volumes:
+        - name: config-volume
+          configMap:
+            name: nginx-config
 ---
 apiVersion: v1
 kind: Service
@@ -33,10 +62,8 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30005
     - name: https
       protocol: TCP
       port: 443
       targetPort: 443
-      nodePort: 30006
-  type: NodePort
+  type: LoadBalancer

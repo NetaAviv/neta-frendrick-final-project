@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: redis-server
-        image: redis:latest
+        image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:redis
         command: ["redis-server"]
         ports:
         - containerPort: 6379
