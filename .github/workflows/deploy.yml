@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - test
-  workflow_dispatch: {}  # Explicitly enable manual trigger
+  workflow_dispatch:
 
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
@@ -18,31 +18,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID }}"  
+          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"  
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Get Latest Version Number
         id: get-version
         run: |
-          echo "Fetching latest status-page image version from ECR..."
-          
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project \
-            --query 'imageDetails[*].imageTags' --output json | \
-            jq -r '.[] | select(. | test("^stuff-status-page-version-[0-9]+$"))' | \
-            grep -o '[0-9]*' | sort -nr | head -n1)
+            --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
+            --output text 2>/dev/null | grep -o 'version-[0-9]*' || echo "version-0")
 
-          if [[ -z "$LATEST_VERSION" ]]; then
-            echo "No previous versions found, starting from version-1"
-            NEW_VERSION="version-1"
-          else
-            NEW_VERSION="version-$((LATEST_VERSION + 1))"
-          fi
+          VERSION_NUMBER=$(echo $LATEST_VERSION | grep -o '[0-9]*' | awk '{print $1+1}')
+          NEW_VERSION="version-$VERSION_NUMBER"
 
-          echo "NEW_VERSION=$NEW_VERSION"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Install Docker Compose
@@ -100,7 +97,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
@@ -109,12 +106,12 @@ jobs:
         run: docker-compose -f stuff/compose.yaml build status-page
 
       - name: Check $NEW_VERSION
-        run: echo "New Version: $NEW_VERSION"
+        run: echo $NEW_VERSION
 
-      - name: View Docker Images
+      - name: View Images
         run: docker images
 
-      - name: Tag and Push Image to ECR
+      - name: Build and Push stuff-status-page Image to ECR
         run: |
             echo "Repo URI: $REPO_URI"
             echo "New Version: $NEW_VERSION"
