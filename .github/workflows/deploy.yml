@@ -48,7 +48,6 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-          
       - name: Install NFS Client
         run: |
           sudo apt-get update
@@ -70,11 +69,9 @@ jobs:
         run: |
          df -h | grep /mnt/efs
 
-
       - name: Verify Files in EFS
         run: |
          ls -l /mnt/efs
-
 
       - name: Install Docker Compose
         run: |
@@ -118,8 +115,6 @@ jobs:
             echo "RDS PostgreSQL connection successful."
           fi
 
-
-
   push-to-ecr:
     needs: build-and-test
     runs-on: self-hosted
@@ -151,7 +146,9 @@ jobs:
         run: |
             echo "Repo URI: $REPO_URI"
             echo "New Version: $NEW_VERSION"
+            # Tag the image with the new version
             docker tag stuff-status-page:latest $REPO_URI:stuff-status-page-$NEW_VERSION
+            # Push the image to ECR
             docker push $REPO_URI:stuff-status-page-$NEW_VERSION
 
       - name: Stop and Remove Containers
