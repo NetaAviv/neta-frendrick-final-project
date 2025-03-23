@@ -34,9 +34,9 @@ jobs:
           echo "Fetching latest status-page image version from ECR..."
           
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project \
-            --query 'imageDetails[*].imageTags' --output json | \
-            jq -r '.[] | select(. | test("^stuff-status-page-version-[0-9]+$"))' | \
-            grep -o '[0-9]*' | sort -nr | head -n1)
+          --query 'imageDetails[*].imageTags' --output json | \
+           jq -r 'flatten | select(.[] | test("^stuff-status-page-version-[0-9]+$"))' | \
+           grep -o '[0-9]*' | sort -nr | head -n1)
 
           if [[ -z "$LATEST_VERSION" ]]; then
             echo "No previous versions found, starting from version-1"
