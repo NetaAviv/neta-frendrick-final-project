@@ -112,7 +112,7 @@ jobs:
         run: docker-compose -f stuff/compose.yaml build status-page
 
       - name: Check $NEW_VERSION
-        run: echo "$NEW_VERSION"
+        run: echo "NEW_VERSION=$NEW_VERSION"
 
       - name: View Docker Images
         run: docker images
