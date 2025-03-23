@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - test
-  workflow_dispatch:
+  workflow_dispatch: {}  # Explicitly enable manual trigger
 
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
