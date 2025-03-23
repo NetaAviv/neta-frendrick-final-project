@@ -20,13 +20,17 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - echo starting;
+              cp -r /mnt/efs/opt/status-page /opt/ ;
+              mkdir -p /var/log/supervisor /etc/supervisor/conf.d  ;
               bash /opt/status-page/upgrade.sh ;
               source /opt/status-page/venv/bin/activate &&
-              export PYTHONPATH=/opt/status-page/statuspag &&
+              export PYTHONPATH=opt/status-page/statuspage &&
               gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
+              # /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisor.conf
+
           volumeMounts:
             - name: efs-storage
-              mountPath: /mnt/efs/opt/status-page  # Mount the EFS volume at this path inside your container
+              mountPath: /mnt/efs # Mount the EFS volume at this path inside your container
       volumes:
         - name: efs-storage
           persistentVolumeClaim:

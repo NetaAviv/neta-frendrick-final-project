@@ -26,8 +26,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /opt
 
 # Optional: Copy local files into the container (adjust paths as needed)
-COPY opt .
-COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+# COPY opt .
+# COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
 
 #Expose the application port (Gunicorn typically runs on 8000)
