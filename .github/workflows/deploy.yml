@@ -66,6 +66,16 @@ jobs:
         run: |
           sudo cp -r stuff/opt/* /mnt/efs/
 
+      - name: Check if EFS is Mounted
+        run: |
+         df -h | grep /mnt/efs
+
+
+      - name: Verify Files in EFS
+        run: |
+         ls -l /mnt/efs
+
+
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
