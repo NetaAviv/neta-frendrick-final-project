@@ -144,6 +144,10 @@ jobs:
 
       - name: Tag and Push Image to ECR
         run: |
+            if [ -z "$NEW_VERSION" ]; then
+                echo "NEW_VERSION is empty, please check the version retrieval logic."
+                exit 1
+            fi
             echo "Repo URI: $REPO_URI"
             echo "New Version: $NEW_VERSION"
             # Tag the image with the new version
