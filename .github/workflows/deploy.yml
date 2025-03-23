@@ -66,6 +66,22 @@ jobs:
         run: |
           curl -fkL https://localhost:443 || exit 1  # Replace with actual EC2 IP and exposed port
 
+      - name: Test RDS Connection
+        run: |
+          # Install MySQL client
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+          # Test connection to the RDS instance
+          MYSQL_TEST_COMMAND="mysql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -u your-db-username -p$YOUR_DB_PASSWORD -e 'SELECT 1;'"
+          
+          if ! $MYSQL_TEST_COMMAND; then
+            echo "RDS connection test failed."
+            exit 1
+          else
+            echo "RDS connection successful."
+          fi
+
   push-to-ecr:
     needs: build-and-test
     runs-on: self-hosted
@@ -90,7 +106,7 @@ jobs:
       - name: Check $NEW_VERSION
         run: echo $NEW_VERSION
 
-      - name: view images
+      - name: View Images
         run: docker images
 
       - name: Build and Push stuff-status-page Image to ECR
