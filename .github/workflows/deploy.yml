@@ -3,7 +3,7 @@ name: Test and Deploy Status Page
 on:
   push:
     branches:
-      - test
+      - cleaning
   workflow_dispatch:
 
 env:
