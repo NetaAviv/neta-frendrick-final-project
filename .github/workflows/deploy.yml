@@ -72,8 +72,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mysql-client
 
-          # Test connection to the RDS instance
-          MYSQL_TEST_COMMAND="mysql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -u your-db-username -p$YOUR_DB_PASSWORD -e 'SELECT 1;'"
+      - name: Test Connection to RDS Instance
+        run: |
+          MYSQL_TEST_COMMAND="mysql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -u ${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e 'SELECT 1;'"
+          echo "Testing RDS connection..."
+          eval $MYSQL_TEST_COMMAND
           
           if ! $MYSQL_TEST_COMMAND; then
             echo "RDS connection test failed."
