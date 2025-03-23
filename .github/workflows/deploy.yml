@@ -90,6 +90,23 @@ jobs:
             echo "RDS PostgreSQL connection successful."
           fi
 
+      - name: Install NFS Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nfs-common
+
+      - name: Create Mount Point for EFS
+        run: |
+          sudo mkdir -p /mnt/efs
+
+      - name: Mount EFS
+        run: |
+          sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-006310ee4adb8a079.efs.us-east-1.amazonaws.com:/ /mnt/efs
+
+      - name: Copy stuff/opt to EFS
+        run: |
+          sudo cp -r stuff/opt/* /mnt/efs/
+
   push-to-ecr:
     needs: build-and-test
     runs-on: self-hosted
