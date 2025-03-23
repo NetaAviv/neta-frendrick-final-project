@@ -20,8 +20,8 @@ jobs:
 
       - name: Debug AWS Credentials
         run: |
-          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID }}"  # This will NOT expose the key
-          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"  # This will NOT expose the key
+          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID }}"  
+          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"  
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -64,25 +64,24 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fkL https://localhost:443 || exit 1  # Replace with actual EC2 IP and exposed port
+          curl -fkL https://localhost:443 || exit 1  
 
-      - name: Test RDS Connection
+      - name: Install PostgreSQL Client
         run: |
-          # Install MySQL client
           sudo apt-get update
-          sudo apt-get install -y mysql-client
+          sudo apt-get install -y postgresql-client
 
-      - name: Test Connection to RDS Instance
+      - name: Test Connection to RDS PostgreSQL Instance
         run: |
-          MYSQL_TEST_COMMAND="mysql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -u ${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e 'SELECT 1;'"
-          echo "Testing RDS connection..."
-          eval $MYSQL_TEST_COMMAND
+          echo "Testing RDS PostgreSQL connection..."
+          PSQL_TEST_COMMAND="PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USERNAME }} -d postgres -c 'SELECT 1;'"
+          eval $PSQL_TEST_COMMAND
           
-          if ! $MYSQL_TEST_COMMAND; then
-            echo "RDS connection test failed."
+          if ! eval $PSQL_TEST_COMMAND; then
+            echo "RDS PostgreSQL connection test failed."
             exit 1
           else
-            echo "RDS connection successful."
+            echo "RDS PostgreSQL connection successful."
           fi
 
   push-to-ecr:
