@@ -6,21 +6,63 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/NetaAviv/neta-frendrick-final-project.git"
-    targetRevision: cleaning  # the branch were developers push changes to 
-    path: "kube/application"  # Path where Kubernetes manifests are stored
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: cleaning
+    path: kube/application  # Path to your manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: staging  # Deploy to staging first
+    namespace: staging  # Starts in the staging namespace
   syncPolicy:
+    automated: {}  # No auto-sync (requires manual approval for production)
     syncOptions:
       - CreateNamespace=true
-    automated:
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+  syncWave: "1"  # Ensure app deploys after storage
+---
+# Deploy the same app to production after QA approval
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: cleaning
+    path: kube/application
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production  # Moves to production after approval
+  syncPolicy:
+    automated: {}  # Requires manual approval
+    syncOptions:
+      - CreateNamespace=true
+  syncWave: "2"  # Deploy after staging is confirmed
+---
+# Ensure EFS storage is deployed first
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: efs-storage
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: cleaning
+    path: kube/volumes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated: 
       prune: true
       selfHeal: true
-  waves:
-    - name: "Deploy to Staging"
-      order: 1
-    - name: "QA Approval Needed"
-      order: 2
-      hold: true  # Deployment to production stops until manually approved
+    syncOptions:
+      - CreateNamespace=true
+  syncWave: "0"  # Deploy storage first
