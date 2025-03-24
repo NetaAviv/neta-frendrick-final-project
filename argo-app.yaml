@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/NetaAviv/neta-frendrick-final-project.git"
+    targetRevision: cleaning  # the branch were developers push changes to 
+    path: "kube/application"  # Path where Kubernetes manifests are stored
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging  # Deploy to staging first
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+  waves:
+    - name: "Deploy to Staging"
+      order: 1
+    - name: "QA Approval Needed"
+      order: 2
+      hold: true  # Deployment to production stops until manually approved
