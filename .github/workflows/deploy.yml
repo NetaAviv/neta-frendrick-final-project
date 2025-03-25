@@ -42,6 +42,10 @@ jobs:
         run: |
           sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-02bded1456fa64b56.efs.us-east-1.amazonaws.com:/ /mnt/efs
 
+      - name: Remove old files from EFS
+        run: |
+          sudo rm -r /mnt/efs/
+
       - name: Copy stuff/opt to EFS
         run: |
           sudo cp -r stuff/* /mnt/efs/
