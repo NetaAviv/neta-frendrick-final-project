@@ -1,6 +1,29 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: efs-storage
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: cleaning
+    path: kube/volumes  # Contains PV, PVCs, and StorageClass
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd  # Storage is applied cluster-wide
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  syncWave: "0"  # Storage should be deployed first
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: status-page-app
   namespace: argocd
 spec:
@@ -8,12 +31,12 @@ spec:
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
     targetRevision: cleaning
-    path: kube/application  # Path to your manifests
+    path: kube/application
   destination:
     server: https://kubernetes.default.svc
-    namespace: staging  # Starts in the staging namespace
+    namespace: staging  # Deploys to staging first
   syncPolicy:
-    automated: {}  # No auto-sync (requires manual approval for production)
+    automated: {}  # No auto-sync (manual approval for production)
     syncOptions:
       - CreateNamespace=true
   ignoreDifferences:
@@ -21,9 +44,9 @@ spec:
       kind: Deployment
       jsonPointers:
         - /spec/template/spec/containers/0/image
-  syncWave: "1"  # Ensure app deploys after storage
+  syncWave: "1"  # Deploy after storage
+
 ---
-# Deploy the same app to production after QA approval
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -37,32 +60,9 @@ spec:
     path: kube/application
   destination:
     server: https://kubernetes.default.svc
-    namespace: production  # Moves to production after approval
+    namespace: production  # Deploys to production after approval
   syncPolicy:
     automated: {}  # Requires manual approval
     syncOptions:
       - CreateNamespace=true
   syncWave: "2"  # Deploy after staging is confirmed
----
-# Ensure EFS storage is deployed first
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: efs-storage
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: cleaning
-    path: kube/volumes
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: staging
-  syncPolicy:
-    automated: 
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-  syncWave: "0"  # Deploy storage first
