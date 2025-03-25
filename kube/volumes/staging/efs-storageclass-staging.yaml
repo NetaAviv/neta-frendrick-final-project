@@ -1,12 +1,12 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: efs-sc
+  name: efs-sc-staging
 provisioner: efs.csi.aws.com
 parameters:
   provisioningMode: efs-ap  # ✅ Fix: Enable EFS Access Point mode
-  fileSystemId: fs-006310ee4adb8a079  # ✅ Your EFS File System ID
-  accessPointId: fsap-08382d6a6db18f34f  # ✅ Your EFS Access Point ID
+  fileSystemId: fs-02bded1456fa64b56 # ✅ Your EFS File System ID
+  accessPointId: fsap-0d9a2275fa4292c91  # ✅ Your EFS Access Point ID
   directoryPerms: "777"  # (Optional) Permissions for root directory
 mountOptions:
   - tls

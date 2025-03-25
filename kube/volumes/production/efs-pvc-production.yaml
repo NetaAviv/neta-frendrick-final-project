@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: efs-pvc
+  name: efs-pvc-production
   namespace: production
 spec:
   accessModes:
@@ -9,4 +9,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  volumeName: efs-pv  # ✅ Directly reference the PV instead of using storageClassName
+  storageClassName: efs-sc-production  # ✅ Directly reference the PV instead of using storageClassName
