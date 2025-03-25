@@ -40,9 +40,7 @@ services:
       gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
 
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx
+    image: nginx:latest
     ports:
       - "80:80"
       - "443:443"
