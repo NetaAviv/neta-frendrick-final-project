@@ -54,7 +54,7 @@ spec:
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
     targetRevision: cleaning
-    path: kube/application
+    path: kube/aplication/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: staging  # Deploys to staging first
@@ -80,7 +80,7 @@ spec:
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
     targetRevision: cleaning
-    path: kube/application
+    path: kube/aplication/production
   destination:
     server: https://kubernetes.default.svc
     namespace: production  # Deploys to production after approval
