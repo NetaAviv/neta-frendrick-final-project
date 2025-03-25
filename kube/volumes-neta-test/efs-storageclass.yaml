@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs-sc-test
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap  # ✅ Fix: Enable EFS Access Point mode
+  fileSystemId: fs-02bded1456fa64b56  # ✅ Your EFS File System ID
+  accessPointId: fsap-014979be07e8edbaf  # ✅ Your EFS Access Point ID
+  directoryPerms: "777"  # (Optional) Permissions for root directory
+mountOptions:
+  - tls
+reclaimPolicy: Retain

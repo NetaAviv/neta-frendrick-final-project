@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pv-cd-neta
+  namespace: production
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc-test  # ✅ Ensure this matches your StorageClass
+  resources:
+    requests:
+      storage: 5Gi

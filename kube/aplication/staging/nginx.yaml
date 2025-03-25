@@ -45,7 +45,7 @@ spec:
       volumes:
         - name: efs-storage
           persistentVolumeClaim:
-            claimName: efs-pvc-$(POD_NAMESPACE)   # Reference the PVC you created
+            claimName: efs-pvc-staging  # Reference the PVC you created
               
         # command: ["nginx", "-g", "daemon off;"]
         # ports:
