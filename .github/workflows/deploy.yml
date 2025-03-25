@@ -14,7 +14,10 @@ jobs:
   build-and-test:
     runs-on: self-hosted
 
+
     steps:
+      - name: Fix permissions
+        run: sudo chown -R ubuntu:ubuntu /home/ubuntu/actions-runner/_work
       - name: Checkout Repository
         uses: actions/checkout@v3
 
