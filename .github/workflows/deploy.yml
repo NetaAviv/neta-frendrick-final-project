@@ -84,7 +84,7 @@ jobs:
 
       - name: Test Application with cURL
         run: |
-          curl -fkL https://localhost:8001 || exit 1  
+          curl -fL http://localhost:8001 || exit 1  
 
       - name: Install PostgreSQL Client
         run: |
