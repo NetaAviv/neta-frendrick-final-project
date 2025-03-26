@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: efs-storage-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: neta-ci-test
+    path: kube/volumes/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: efs-storage-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: neta-ci-test
+    path: kube/volumes/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated: {}  # Sync will happen manually, no automated sync
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: neta-ci-test
+    path: kube/application/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: neta-ci-test
+    path: kube/application/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated: {}  # Sync will happen manually for production
+    syncOptions:
+      - CreateNamespace=true 
