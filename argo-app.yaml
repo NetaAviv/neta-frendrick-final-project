@@ -1,4 +1,3 @@
-# EFS Storage for Staging
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,8 +7,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: master  # Ensuring it pulls from master
-    path: kube/volumes/staging
+    targetRevision: neta-ci-test  # Change to the correct branch
+    path: kube/volumes/staging  # Uses staging-specific storage setup
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
@@ -19,10 +18,9 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  syncWave: "0"  # Ensures storage is deployed before the app
+  syncWave: "0"
 
 ---
-# EFS Storage for Production
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -32,7 +30,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: master
+    targetRevision: neta-ci-test  # Change to the correct branch
     path: kube/volumes/production
   destination:
     server: https://kubernetes.default.svc
@@ -46,7 +44,6 @@ spec:
   syncWave: "0"
 
 ---
-# Status Page App for Staging (Auto-deploys new images)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -56,15 +53,13 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: master
-    path: kube/aplication/staging
+    targetRevision: neta-ci-test  # Change to the correct branch
+    path: kube/application/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    automated: {}
     syncOptions:
       - CreateNamespace=true
   ignoreDifferences:
@@ -75,7 +70,6 @@ spec:
   syncWave: "1"
 
 ---
-# Status Page App for Production (Manual approval required)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -85,13 +79,13 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: master
-    path: kube/aplication/production
+    targetRevision: neta-ci-test  # Change to the correct branch
+    path: kube/application/production
   destination:
     server: https://kubernetes.default.svc
     namespace: production
   syncPolicy:
-    automated: {}  # Manual approval required
+    automated: {}
     syncOptions:
       - CreateNamespace=true
-  syncWave: "2"  # Deploy after QA approval
+  syncWave: "2"
