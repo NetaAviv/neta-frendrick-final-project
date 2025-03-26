@@ -1,3 +1,4 @@
+# EFS Storage for Staging
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -7,20 +8,21 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: cleaning
-    path: kube/volumes/staging  # Uses staging-specific storage setup
+    targetRevision: master  # Ensuring it pulls from master
+    path: kube/volumes/staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: staging  # Storage applies to staging namespace
+    namespace: staging
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  syncWave: "0"  # Deploy storage before the app
+  syncWave: "0"  # Ensures storage is deployed before the app
 
 ---
+# EFS Storage for Production
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -30,20 +32,21 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: cleaning
-    path: kube/volumes/production  # Uses production-specific storage setup
+    targetRevision: master
+    path: kube/volumes/production
   destination:
     server: https://kubernetes.default.svc
-    namespace: production  # Storage applies to production namespace
+    namespace: production
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  syncWave: "0"  # Deploy storage before the app
+  syncWave: "0"
 
 ---
+# Status Page App for Staging (Auto-deploys new images)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -53,13 +56,15 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: cleaning
+    targetRevision: master
     path: kube/aplication/staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: staging  # Deploys to staging first
+    namespace: staging
   syncPolicy:
-    automated: {}  # No auto-sync (manual approval for production)
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
   ignoreDifferences:
@@ -67,9 +72,10 @@ spec:
       kind: Deployment
       jsonPointers:
         - /spec/template/spec/containers/0/image
-  syncWave: "1"  # Deploy after staging storage
+  syncWave: "1"
 
 ---
+# Status Page App for Production (Manual approval required)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -79,13 +85,13 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: cleaning
+    targetRevision: master
     path: kube/aplication/production
   destination:
     server: https://kubernetes.default.svc
-    namespace: production  # Deploys to production after approval
+    namespace: production
   syncPolicy:
-    automated: {}  # Requires manual approval
+    automated: {}  # Manual approval required
     syncOptions:
       - CreateNamespace=true
-  syncWave: "2"  # Deploy after production storage and staging confirmation
+  syncWave: "2"  # Deploy after QA approval
