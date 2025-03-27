@@ -19,7 +19,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Fix File Permissions
+      - name: Fix File Permissions (just for me- this is running from the devops branch)
         run: |
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE
           sudo chmod -R u+w $GITHUB_WORKSPACE
@@ -136,4 +136,4 @@ jobs:
       - name: Auto-merge PR after successful build
         uses: pascalgn/automerge-action@v0.15.4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
