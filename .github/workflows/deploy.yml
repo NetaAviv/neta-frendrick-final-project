@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - developers
+      - master  # Trigger on direct pushes to master
   pull_request:
     branches:
-      - master
-  workflow_dispatch:
+      - master  # Trigger when a PR is created targeting master
+  workflow_dispatch:  # Allow manual trigger
 
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
