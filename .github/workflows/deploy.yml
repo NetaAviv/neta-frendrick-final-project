@@ -1,7 +1,6 @@
 name: Test status page app before merge to master
 
 on:
-on:
   push:
     branches:
       - developers
