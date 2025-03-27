@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: running from 
-        run: echo "developers"
+        run: echo "master"
         
       - name: Fix File Permissions
         run: |
