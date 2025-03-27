@@ -36,6 +36,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+
+      - name: Install NFS Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nfs-common
+
       
       - name: Install Dependencies
         run: |
@@ -49,6 +59,14 @@ jobs:
       
       - name: Copy stuff/opt to EFS
         run: sudo cp -r stuff/* /mnt/efs/
+
+      - name: Check if EFS is Mounted
+        run: |
+         df -h | grep /mnt/efs
+
+      - name: Verify Files in EFS
+        run: |
+         ls -l /mnt/efs
       
       - name: Install Docker Compose
         run: |
@@ -139,4 +157,4 @@ jobs:
       - name: Auto-merge PR after successful build
         uses: pascalgn/automerge-action@v0.15.4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
