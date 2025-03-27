@@ -15,7 +15,8 @@ spec:
       containers:
       - name: redis-server
         image: redis
-        command: ["redis-server", "--dir", "/mnt/efs/opt/redis", "--appendonly", "yes"]
+        # command: ["redis-server", "--dir", "/mnt/efs/opt/redis", "--appendonly", "yes"]
+        command: ["redis-server", "--appendonly", "no"]
         ports:
         - containerPort: 6379
         volumeMounts:
