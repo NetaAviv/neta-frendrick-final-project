@@ -1,13 +1,12 @@
 name: Test status page app before merge to master
 
 on:
-  pull_request:
+on:
+  push:
     branches:
-      - master  # Trigger when a PR is created targeting master
-    types:
-      - opened
-      - synchronize
-      - reopened
+      - developers
+  workflow_dispatch:
+
 
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
@@ -48,6 +47,15 @@ jobs:
       
       - name: Copy stuff/opt to EFS
         run: sudo cp -r stuff/* /mnt/efs/
+
+      - name: Check if EFS is Mounted
+        run: |
+         df -h | grep /mnt/efs
+
+      - name: Verify Files in EFS
+        run: |
+         ls -l /mnt/efs
+
       
       - name: Install Docker Compose
         run: |
