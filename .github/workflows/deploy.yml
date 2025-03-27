@@ -1,4 +1,4 @@
-name: Test and Deploy Status Page
+name: Test status page app before merge to master
 
 on:
   pull_request:
