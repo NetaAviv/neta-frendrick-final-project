@@ -1,4 +1,4 @@
-name: Test status page app before merge to master
+name: Test and Deploy Status Page
 
 on:
   push:
@@ -12,12 +12,9 @@ env:
 
 jobs:
   build-and-test:
-    if: github.event.pull_request.head.ref == 'developers'  # Only trigger for PR from 'developers' to 'master'
     runs-on: self-hosted
 
     steps:
-      - name: this is running from 
-        run: echo "developers"
       - name: Fix File Permissions
         run: |
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE
@@ -45,15 +42,6 @@ jobs:
       
       - name: Copy stuff/opt to EFS
         run: sudo cp -r stuff/* /mnt/efs/
-
-      - name: Check if EFS is Mounted
-        run: |
-         df -h | grep /mnt/efs
-
-      - name: Verify Files in EFS
-        run: |
-         ls -l /mnt/efs
-
       
       - name: Install Docker Compose
         run: |
@@ -67,7 +55,7 @@ jobs:
         run: docker-compose -f stuff/compose.yaml up -d
       
       - name: Wait for the App to Start
-        run: sleep 120
+        run: sleep 200
       
       - name: Check Docker Containers
         run: docker ps -a
@@ -136,12 +124,3 @@ jobs:
         run: |
           docker ps -q | xargs -r docker stop
           docker ps -aq | xargs -r docker rm
-
-  auto-merge:
-    needs: push-to-ecr
-    runs-on: ubuntu-latest
-    steps:
-      - name: Auto-merge PR after successful build
-        uses: pascalgn/automerge-action@v0.15.4
-        with:
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
