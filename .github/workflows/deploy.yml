@@ -19,6 +19,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: this is running from 
+        run: echo "developers"
       - name: Fix File Permissions
         run: |
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE
