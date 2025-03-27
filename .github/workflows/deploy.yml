@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq nfs-common postgresql-client
+          sudo apt-get install -y jq nfs-common postgresql-client python3-venv python3-pip
       
       - name: Mount EFS
         run: |
@@ -47,6 +47,18 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
+      
+      - name: Set up Python Virtual Environment
+        run: |
+          python3 -m venv /opt/status-page/venv
+          source /opt/status-page/venv/bin/activate
+          pip install --upgrade pip
+          pip install -r stuff/requirements.txt
+      
+      - name: Run Migrations
+        run: |
+          source /opt/status-page/venv/bin/activate
+          python stuff/manage.py migrate
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
