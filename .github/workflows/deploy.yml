@@ -136,4 +136,4 @@ jobs:
       - name: Auto-merge PR after successful build
         uses: pascalgn/automerge-action@v0.15.4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
