@@ -13,7 +13,7 @@ metadata:
 spec:
   ingressClassName: alb-ingress
   rules:
-    - host: statuspage-neta-fred.click
+    - host: neta.statuspage-neta-fred.click
       http:
         paths:
           - path: /
