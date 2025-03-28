@@ -1,4 +1,4 @@
-apiVersion: argoproj.io/v1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: status-page-app-production
@@ -7,13 +7,10 @@ spec:
   destination:
     namespace: production
     server: https://kubernetes.default.svc
-  project: default
-  syncPolicy:
-    manual: {}  # Manual sync enabled
   source:
+    path: kube/production
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
     targetRevision: neta-test-this
-    path: kube/production
   sources:
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
       targetRevision: neta-test-this
@@ -24,3 +21,7 @@ spec:
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
       targetRevision: neta-test-this
       path: kube/production/ingress
+  project: default
+  syncPolicy:
+    manual: {}
+
