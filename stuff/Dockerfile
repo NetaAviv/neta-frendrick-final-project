@@ -37,7 +37,7 @@ RUN python3 -m venv /opt/status-page/venv
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Copy the requirements.txt file from the correct location to the container
-COPY stuff/opt/status-page/requirements.txt /opt/status-page/
+COPY opt/status-page/requirements.txt /opt/status-page/
 
 # Install dependencies inside the virtual environment
 RUN /opt/status-page/venv/bin/pip install --upgrade pip
