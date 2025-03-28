@@ -36,10 +36,12 @@ RUN python3 -m venv /opt/status-page/venv
 # Ensure 'python' points to python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# Copy the requirements.txt file from the correct location to the container
+COPY stuff/opt/status-page/requirements.txt /opt/status-page/
+
 # Install dependencies inside the virtual environment
 RUN /opt/status-page/venv/bin/pip install --upgrade pip
-COPY requirements.txt .
-RUN /opt/status-page/venv/bin/pip install -r requirements.txt
+RUN /opt/status-page/venv/bin/pip install -r /opt/status-page/requirements.txt
 
 # Set the virtual environment as default
 ENV PATH="/opt/status-page/venv/bin:$PATH"
