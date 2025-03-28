@@ -69,7 +69,7 @@ jobs:
         run: docker-compose -f stuff/compose.yaml up -d
       
       - name: Wait for the App to Start
-        run: sleep 160
+        run: sleep 120
       
       - name: Check Docker Containers
         run: docker ps -a
@@ -97,6 +97,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+         submodules: false 
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
