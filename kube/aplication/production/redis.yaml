@@ -15,12 +15,14 @@ spec:
       containers:
       - name: redis-server
         image: redis
-        command: ["redis-server", "--dir", "/mnt/efs/opt/redis", "--appendonly", "yes"]
+        command: ["redis-server", "--dir", "/mnt/efs/opt/redis-prod", "--appendonly", "yes"]
+        # command: ["redis-server", "--appendonly", "no"]
+
         ports:
         - containerPort: 6379
         volumeMounts:
         - name: efs-storage
-          mountPath: /mnt/efs/opt/redis
+          mountPath: /mnt/efs/
       volumes:
       - name: efs-storage
         persistentVolumeClaim:
