@@ -64,8 +64,8 @@ jobs:
 
       - name: Run Migrations
         run: |
-          source stuff/opt/status-page/venv/bin/activate
-          python stuff/manage.py migrate
+         source stuff/opt/status-page/venv/bin/activate
+         python stuff/opt/status-page/statuspage/manage.py migrate
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
