@@ -39,19 +39,19 @@ services:
       export PYTHONPATH=/opt/status-page/statuspag &&
       gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
 
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - status-page
-    networks:
-      - mynetwork
-    volumes:
-      - ./opt:/opt
+#  nginx:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    depends_on:
+#      - status-page
+#    networks:
+#      - mynetwork
+#    volumes:
+#      - ./opt:/opt
 
 networks:
   mynetwork:
