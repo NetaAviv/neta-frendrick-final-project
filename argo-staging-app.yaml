@@ -1,59 +1,30 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: status-page-app-staging
+  name: staging-app
   namespace: argocd
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: neta-test-this
-    path: kube/staging/application  # Path for staging application files
   destination:
-    server: https://kubernetes.default.svc
     namespace: staging
+    server: https://kubernetes.default.svc
+  project: default
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # Automatically create the staging namespace if it doesn't exist
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      jsonPointers:
-        - /spec/template/spec/containers/0/image
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: status-page-pvc
-  namespace: staging
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 5Gi
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: status-page-ingress
-  namespace: staging
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-    - host: staging.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: status-page-service
-                port:
-                  number: 80
+      - CreateNamespace=true
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: neta-test-this
+    path: kube/staging/storage
+  sources:
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: neta-test-this
+      path: kube/staging/storage
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: neta-test-this
+      path: kube/staging/application
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: neta-test-this
+      path: kube/staging/ingress
