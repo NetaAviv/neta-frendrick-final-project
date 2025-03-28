@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq nfs-common postgresql-client python3-venv python3-pip
+          sudo apt-get install -y jq nfs-common postgresql-client python3-venv python3-pip libpq-dev
 
       - name: Mount EFS
         run: |
@@ -56,13 +56,11 @@ jobs:
           python3 -m venv stuff/opt/status-page/venv
           source stuff/opt/status-page/venv/bin/activate
           pip install --upgrade pip
-
-
-      - name: Install Dependencies
+      
+      - name: Install Python Dependencies
         run: |
-         sudo apt-get update
-         sudo apt-get install -y libpq-dev
-         pip install -r stuff/opt/status-page/requirements.txt
+          source stuff/opt/status-page/venv/bin/activate
+          pip install -r stuff/opt/status-page/requirements.txt
 
       - name: Run Migrations
         run: |
