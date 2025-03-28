@@ -43,8 +43,6 @@ jobs:
       - name: Copy files to EFS
         run: sudo cp -r stuff/* /mnt/efs/
 
-      - name: Check File Structure
-        run: ls -R stuff/opt/
       
       - name: Install Docker Compose
         run: |
@@ -78,11 +76,6 @@ jobs:
       
       - name: Check status-page logs
         run: docker logs status-page
-
-      - name: Run Migrations
-        run: |
-         source opt/status-page/venv/bin/activate
-         python opt/status-page/statuspage/manage.py migrate
       
       - name: Test Application with cURL
         run: curl -fL http://localhost:8001 || exit 1
