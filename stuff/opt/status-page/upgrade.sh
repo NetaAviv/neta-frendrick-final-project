@@ -79,7 +79,7 @@ else
 fi
 
 # Apply any database migrations
-COMMAND="python3 statuspage/manage.py migrate --no-input"
+COMMAND="python3 statuspage/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND || exit 1
 
