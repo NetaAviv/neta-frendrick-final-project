@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: master
+    path: kube/production/application  # Path for production application files
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated: {}  # Manual sync policy for production
+    syncOptions:
+      - CreateNamespace=false  # Do not automatically create the production namespace
+  hooks:
+    - exec:
+        command: ["/bin/sh", "-c", "echo 'Production namespace will be created after manual approval from Staging'"]
+      syncPolicy:
+        manual: true  # QA team must approve before syncing to production
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: status-page-pvc
+  namespace: production
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: status-page-ingress
+  namespace: production
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: production.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: status-page-service
+                port:
+                  number: 80
