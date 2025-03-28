@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq nfs-common postgresql-client python3-venv python3-pip libpq-dev
+          sudo apt-get install -y jq nfs-common postgresql-client
 
       - name: Mount EFS
         run: |
