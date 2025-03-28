@@ -1,7 +1,7 @@
 # Use the official Ubuntu image from Docker Hub as the base image
 FROM ubuntu:latest
 
-# Update the package list, install essential packages, and clean up apt cache
+# Update the package list and install essential packages
 RUN apt-get update && apt-get install -y \
     supervisor \
     systemctl \
@@ -27,18 +27,22 @@ WORKDIR /opt
 # Expose the application port (Gunicorn typically runs on 8001)
 EXPOSE 8001
 
-# Add user and set permissions
+# Add user
 RUN adduser --system --group status-page
-RUN chown -R status-page:status-page /opt
+
+# Set permissions for /opt/status-page
+RUN mkdir -p /opt/status-page/venv && \
+    chown -R status-page:status-page /opt/status-page
 
 # Set up Python 3 virtual environment
-RUN python3 -m venv /opt/status-page/venv
+RUN python3 -m venv /opt/status-page/venv && \
+    ls /opt/status-page/venv/bin  # Check the virtual environment
 
 # Ensure 'python' points to python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Copy the requirements.txt file from the correct location to the container
-COPY ./opt/status-page/requirements.txt /opt/status-page/
+COPY opt/status-page/requirements.txt /opt/status-page/
 
 # Install dependencies inside the virtual environment
 RUN /opt/status-page/venv/bin/pip install --upgrade pip
