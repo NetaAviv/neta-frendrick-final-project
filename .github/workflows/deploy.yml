@@ -34,14 +34,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq nfs-common postgresql-client python3-venv python3-pip
-      
+
       - name: Mount EFS
         run: |
           sudo mkdir -p /mnt/efs
           sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-02bded1456fa64b56.efs.us-east-1.amazonaws.com:/ /mnt/efs
-      
-      - name: Copy stuff/opt to EFS
+
+      - name: Copy files to EFS
         run: sudo cp -r stuff/* /mnt/efs/
+
+      - name: Check File Structure
+        run: ls -R stuff/opt/
       
       - name: Install Docker Compose
         run: |
@@ -50,14 +53,14 @@ jobs:
       
       - name: Set up Python Virtual Environment
         run: |
-          python3 -m venv /opt/status-page/venv
-          source /opt/status-page/venv/bin/activate
+          python3 -m venv stuff/opt/status-page/venv
+          source stuff/opt/status-page/venv/bin/activate
           pip install --upgrade pip
           pip install -r stuff/requirements.txt
       
       - name: Run Migrations
         run: |
-          source /opt/status-page/venv/bin/activate
+          source stuff/opt/status-page/venv/bin/activate
           python stuff/manage.py migrate
       
       - name: Set up Docker Compose and Build
