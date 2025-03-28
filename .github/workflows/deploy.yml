@@ -62,10 +62,7 @@ jobs:
           source stuff/opt/status-page/venv/bin/activate
           pip install -r stuff/opt/status-page/requirements.txt
 
-      - name: Run Migrations
-        run: |
-         source stuff/opt/status-page/venv/bin/activate
-         python stuff/opt/status-page/statuspage/manage.py migrate
+
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
@@ -81,6 +78,11 @@ jobs:
       
       - name: Check status-page logs
         run: docker logs status-page
+
+      - name: Run Migrations
+        run: |
+         source stuff/opt/status-page/venv/bin/activate
+         python stuff/opt/status-page/statuspage/manage.py migrate
       
       - name: Test Application with cURL
         run: curl -fL http://localhost:8001 || exit 1
