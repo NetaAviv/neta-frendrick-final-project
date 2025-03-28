@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: master
+    targetRevision: neta-test-this
     path: kube/staging/application  # Path for staging application files
   destination:
     server: https://kubernetes.default.svc
@@ -23,11 +23,6 @@ spec:
       kind: Deployment
       jsonPointers:
         - /spec/template/spec/containers/0/image
-  imageUpdater:
-    containers:
-      - name: status-page
-        image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
-        tag: latest  # Automatically update the image to the latest version from ECR
 
 ---
 apiVersion: v1
