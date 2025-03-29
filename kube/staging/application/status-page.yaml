@@ -17,17 +17,17 @@ spec:
       containers:
         - name: status-page-latest
           image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:app
+          imagePullPolicy: Always  # Ensures that the latest image is pulled every time
           command: ["/bin/bash", "-c"]
           args:
             - echo starting;
               cp -r /mnt/efs/opt/status-page /opt/ ;
-              mkdir -p /var/log/supervisor /etc/supervisor/conf.d  ;
+              mkdir -p /var/log/supervisor /etc/supervisor/conf.d ;
               bash /opt/status-page/upgrade.sh ;
               source /opt/status-page/venv/bin/activate &&
               export PYTHONPATH=opt/status-page/statuspage &&
               gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
               # /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisor.conf
-
           volumeMounts:
             - name: efs-storage
               mountPath: /mnt/efs # Mount the EFS volume at this path inside your container
@@ -35,13 +35,6 @@ spec:
         - name: efs-storage
           persistentVolumeClaim:
             claimName: efs-pvc-staging  # Reference the PVC you created
-#          volumeMounts:
-#            - name: ebs-volume
-#              mountPath: /opt/status-page  # Adjust this to the appropriate path inside the container where you want to mount the volume
-#      volumes:
-#        - name: ebs-volume
-#          persistentVolumeClaim:
-#            claimName: ebs-pvc  # Reference your PVC here
 ---
 apiVersion: v1
 kind: Service
