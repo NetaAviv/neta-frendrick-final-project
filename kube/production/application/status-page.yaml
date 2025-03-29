@@ -17,6 +17,7 @@ spec:
       containers:
         - name: status-page-latest
           image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:app
+          imagePullPolicy: Always  # Ensures the latest image is always pulled from ECR
           command: ["/bin/bash", "-c"]
           args:
             - echo starting;
