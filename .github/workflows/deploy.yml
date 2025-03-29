@@ -82,13 +82,7 @@ jobs:
     needs: build-and-test
     runs-on: self-hosted
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}  # Keeps the branch intact
-          persist-credentials: false  # Prevents GitHub Actions from deleting branches or making commits
-    
+    steps:    
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
