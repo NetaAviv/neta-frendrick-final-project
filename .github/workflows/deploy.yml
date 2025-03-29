@@ -43,12 +43,10 @@ jobs:
       - name: Copy files to EFS
         run: sudo cp -r stuff/* /mnt/efs/
 
-      
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-      
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
@@ -89,13 +87,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
+    
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-      
+    
       - name: Build Docker Image
         run: docker-compose -f stuff/compose.yaml build status-page
-      
+    
       - name: Get Latest Version Number
         id: get-version
         run: |
@@ -103,22 +101,27 @@ jobs:
           --query 'imageDetails[*].imageTags' --output json | \
           jq -r 'flatten | select(.[] | test("^stuff-status-page-version-[0-9]+$"))' | \
           grep -o '[0-9]*' | sort -nr | head -n1)
-          
+        
           if [[ -z "$LATEST_VERSION" ]]; then
             NEW_VERSION="version-1"
           else
             NEW_VERSION="version-$((LATEST_VERSION + 1))"
           fi
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-      
+    
       - name: Tag and Push Image to ECR
         run: |
           docker tag stuff-status-page:latest $REPO_URI:stuff-status-page-$NEW_VERSION
           docker push $REPO_URI:stuff-status-page-$NEW_VERSION
-      
+    
+      - name: Tag the Image as Latest and Push to ECR
+        run: |
+          docker tag stuff-status-page:latest $REPO_URI:latest
+          docker push $REPO_URI:latest  # Push the image with the latest tag
+    
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
-      
+    
       - name: Cleanup Running Containers
         run: |
           docker ps -q | xargs -r docker stop
