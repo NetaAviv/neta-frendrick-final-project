@@ -3,7 +3,7 @@ name: Test and Deploy Status Page
 on:
   push:
     branches:
-      - neta-test-this
+      - Development
   workflow_dispatch:
 
 env:
