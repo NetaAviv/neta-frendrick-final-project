@@ -16,15 +16,15 @@ spec:
       - CreateNamespace=true
   source:
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: neta-test-this
+    targetRevision: Development
     path: kube/staging/storage
   sources:
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/staging/storage
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/staging/application
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/staging/ingress
