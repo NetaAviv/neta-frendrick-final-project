@@ -10,16 +10,16 @@ spec:
   source:
     path: kube/production
     repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-    targetRevision: neta-test-this
+    targetRevision: Development
   sources:
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/production/storage
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/production/application
     - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
-      targetRevision: neta-test-this
+      targetRevision: Development
       path: kube/production/ingress
   project: default
   syncPolicy:
