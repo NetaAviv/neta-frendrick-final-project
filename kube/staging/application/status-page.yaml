@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: status-page-latest
-          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:app
+          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest  # Always use the 'latest' tag
           imagePullPolicy: Always  # Ensures that the latest image is pulled every time
           command: ["/bin/bash", "-c"]
           args:
