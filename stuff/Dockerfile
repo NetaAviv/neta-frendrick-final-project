@@ -29,6 +29,10 @@ EXPOSE 8001
 
 # Add user
 RUN adduser --system --group status-page
+RUN chown -R status-page:status-page /opt
+
+USER status-page
+
 
 # Set up Python 3 virtual environment
 RUN python3 -m venv /opt/status-page/venv
