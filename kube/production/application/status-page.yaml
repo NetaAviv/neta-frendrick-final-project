@@ -14,27 +14,27 @@ spec:
       labels:
         app: status-page
     spec:
+      securityContext:
+        runAsUser: 1000  # Non-root user ID
+        runAsGroup: 1000  # Non-root group
+        fsGroup: 1000  # Ensures volume permissions are correct
       containers:
         - name: status-page-latest
-          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest  # Always use the 'latest' tag
-          imagePullPolicy: Always  # Ensures the latest image is always pulled from ECR
-          command: ["/bin/bash", "-c"]
-          args:
-            - echo starting;
-              cp -r /mnt/efs/opt/status-page /opt/ ;
-              mkdir -p /var/log/supervisor /etc/supervisor/conf.d ;
-              bash /opt/status-page/upgrade.sh ;
-              source /opt/status-page/venv/bin/activate &&
-              export PYTHONPATH=opt/status-page/statuspage &&
-              gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
-              # /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisor.conf
+          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:latest
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false  # Prevent privilege escalation
+            runAsUser: 1000
+            runAsGroup: 1000
+            readOnlyRootFilesystem: true  # Prevent writing to root filesystem
           volumeMounts:
             - name: efs-storage
-              mountPath: /mnt/efs # Mount the EFS volume at this path inside your container
+              mountPath: /mnt/efs
       volumes:
         - name: efs-storage
           persistentVolumeClaim:
-            claimName: efs-pvc-production  # Reference the PVC you created
+            claimName: efs-pvc-production
+
 ---
 apiVersion: v1
 kind: Service
