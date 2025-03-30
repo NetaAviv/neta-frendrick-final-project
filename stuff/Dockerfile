@@ -1,4 +1,4 @@
-# Use the official Ubuntu image from Docker Hub as the base image
+# Use the official Ubuntu image from Docker Hub as the base image hi
 FROM ubuntu:latest
 
 # Update the package list and install essential packages
