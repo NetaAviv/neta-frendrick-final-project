@@ -28,6 +28,8 @@ WORKDIR /opt
 EXPOSE 8001
 #add user
 RUN adduser --system --group status-page
+RUN chown -R status-page:status-page /opt
 
+USER status-page
 
 # RUN status-page/upgrade.sh
