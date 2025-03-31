@@ -1,10 +1,9 @@
-# Use the official Ubuntu image from Docker Hub as the base image hi
+# Use the official Ubuntu image from Docker Hub as the base image
 FROM ubuntu:latest
 
 # Update the package list and install essential packages
 RUN apt-get update && apt-get install -y \
     supervisor \
-    systemctl \
     curl \
     vim \
     git \
@@ -21,21 +20,26 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     && apt-get clean
 
-# Set the working directory inside the container
-WORKDIR /opt
-
-#Expose the application port (Gunicorn typically runs on 8001)
-EXPOSE 8001
-#add user
-# RUN adduser --system --group status-page
-#RUN chown -R status-page:status-page /opt
-
-# Create non-root user and group
+# Create a non-root user and group
 RUN adduser --system --disabled-password --group status-page
 
-# Set permissions for /opt (or at least your app folder)
-RUN chown -R status-page:status-page /opt
+# Set up the working directory inside the container
+WORKDIR /opt/status-page
 
-#USER status-page
+# Ensure the non-root user can write to this directory
+RUN chown -R status-page:status-page /opt/status-page
+RUN chmod -R 755 /opt/status-page
 
-# RUN status-page/upgrade.sh
+# Switch to the non-root user
+USER status-page
+
+# Expose the application port
+EXPOSE 8001
+
+# Copy application files (uncomment and modify if needed)
+# COPY . /opt/status-page
+
+# Run upgrade script (ensure it exists in the app directory)
+# RUN /opt/status-page/upgrade.sh
+
+CMD ["bash"]
