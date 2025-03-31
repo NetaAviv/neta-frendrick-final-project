@@ -22,27 +22,23 @@ jobs:
       
       - name: Checkout Repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 2 
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-         aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y jq nfs-common postgresql-client
 
-            
       - name: Mount EFS
         run: |
           sudo mkdir -p /mnt/efs
-          sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-02bded1456fa64b56.efs.us-east-1.amazonaws.com:/ /mnt/efs \
-          || { echo "EFS mount failed!"; exit 1; }
+          sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-02bded1456fa64b56.efs.us-east-1.amazonaws.com:/ /mnt/efs
 
       - name: Copy files to EFS
         run: sudo cp -r stuff/* /mnt/efs/
@@ -66,10 +62,10 @@ jobs:
       
       - name: Check status-page logs
         run: docker logs status-page
-
+      
       - name: Test Application with cURL
         run: curl -fL http://localhost:8001 || exit 1
-
+      
       - name: Test Connection to RDS PostgreSQL Instance
         run: |
           PSQL_TEST_COMMAND="PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USERNAME }} -d postgres -c 'SELECT 1;'"
@@ -79,7 +75,7 @@ jobs:
           else
             echo "RDS PostgreSQL connection successful."
           fi
-      
+
       - name: Run Snyk Security Scan
         uses: snyk/actions/docker@master
         with:
@@ -87,6 +83,7 @@ jobs:
           args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
 
   push-to-ecr:
     needs: build-and-test
@@ -96,9 +93,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-         aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
     
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
@@ -111,7 +108,7 @@ jobs:
         run: |
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project \
           --query 'imageDetails[*].imageTags' --output json | \
-          jq -r 'flatten | .[] | select(test("^stuff-status-page-version-[0-9]+$"))' | \
+          jq -r 'flatten | select(.[] | test("^stuff-status-page-version-[0-9]+$"))' | \
           grep -o '[0-9]*' | sort -nr | head -n1)
         
           if [[ -z "$LATEST_VERSION" ]]; then
@@ -129,12 +126,12 @@ jobs:
       - name: Tag the Image as Latest and Push to ECR
         run: |
           docker tag stuff-status-page:latest $REPO_URI:latest
-          docker push $REPO_URI:latest
+          docker push $REPO_URI:latest  # Push the image with the latest tag
     
       - name: Stop and Remove Containers
         run: docker-compose -f stuff/compose.yaml down
     
       - name: Cleanup Running Containers
         run: |
-          docker ps -q | xargs -r docker stop || true
-          docker ps -aq | xargs -r docker rm || true
+          docker ps -q | xargs -r docker stop
+          docker ps -aq | xargs -r docker rm
