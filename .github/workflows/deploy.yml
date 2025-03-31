@@ -49,8 +49,8 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Set Correct Permissions Inside Container
-        run: sudo chown -R 100:102 stuff/opt
+ #     - name: Set Correct Permissions Inside Container
+ #       run: sudo chown -R 100:102 stuff/opt
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
