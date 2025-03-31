@@ -27,8 +27,8 @@ RUN adduser --system --disabled-password --group status-page
 WORKDIR /opt/status-page
 
 # Ensure the non-root user can write to this directory
-RUN chown -R status-page:status-page /opt/status-page
-RUN chmod -R 755 /opt/status-page
+RUN mkdir -p /opt/status-page && chown -R status-page:status-page /opt/status-page
+RUN chmod -R 777 /opt/status-page  # Full permissions (for debugging)
 
 # Switch to the non-root user
 USER status-page
@@ -36,10 +36,5 @@ USER status-page
 # Expose the application port
 EXPOSE 8001
 
-# Copy application files (uncomment and modify if needed)
-# COPY . /opt/status-page
-
 # Run upgrade script (ensure it exists in the app directory)
-# RUN /opt/status-page/upgrade.sh
-
-CMD ["bash"]
+CMD ["/bin/bash", "-c", "/opt/status-page/upgrade.sh"]
