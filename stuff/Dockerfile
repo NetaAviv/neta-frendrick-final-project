@@ -25,19 +25,19 @@ RUN apt-get update && apt-get install -y \
 RUN adduser --system --disabled-password --group status-page
 
 # Set up the working directory inside the container
-WORKDIR /opt/status-page
+WORKDIR /opt
 
 # Ensure the non-root user can write to this directory
-RUN mkdir -p /opt/status-page/venv && chown -R status-page:status-page /opt/status-page
+#RUN mkdir -p /opt/status-page/venv && chown -R status-page:status-page /opt/status-page
 
 # Switch to the non-root user
-USER status-page
+#USER status-page
 
 # Create the virtual environment during the build stage
-RUN python3 -m venv /opt/status-page/venv
+#RUN python3 -m venv /opt/status-page/venv
 
 # Copy the application code
-COPY --chown=status-page:status-page . /opt/status-page
+#COPY --chown=status-page:status-page . /opt/status-page
 
 # Expose the application port
 EXPOSE 8001
