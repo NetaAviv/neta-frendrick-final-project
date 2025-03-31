@@ -42,32 +42,31 @@ jobs:
           sudo apt-get install -y npm
           sudo npm install -g htmlhint
 
-
       - name: Check Modified HTML Files with htmlhint
         run: |
           echo "Checking for modified HTML files..."
-          MODIFIED_FILES=$(git diff --name-only origin/Development...HEAD | grep '.html$' || true)
+          MODIFIED_FILES=$(git diff --name-only origin/Development...HEAD -- 'stuff/opt/status-page/statuspage/templates/*.html' || true)
 
-            if [[ -z "$MODIFIED_FILES" ]]; then
-              echo "No HTML files changed. Skipping htmlhint."
-              exit 0
-            fi
+          if [[ -z "$MODIFIED_FILES" ]]; then
+            echo "No HTML files changed. Skipping htmlhint."
+            exit 0
+          fi
 
-            echo "Modified HTML files:"
-            echo "$MODIFIED_FILES"
+          echo "Modified HTML files:"
+          echo "$MODIFIED_FILES"
 
-            HAS_ERRORS=0
-            for file in $MODIFIED_FILES; do
-              echo "Linting $file"
-              htmlhint "$file" || HAS_ERRORS=1
-            done
+          HAS_ERRORS=0
+          for file in $MODIFIED_FILES; do
+            echo "Linting $file"
+            htmlhint "$file" || HAS_ERRORS=1
+          done
 
-            if [[ $HAS_ERRORS -ne 0 ]]; then
-              echo "HTMLHint found issues."
-              exit 1
-            else
-              echo "All modified HTML files passed HTMLHint."
-            fi
+          if [[ $HAS_ERRORS -ne 0 ]]; then
+            echo "HTMLHint found issues."
+            exit 1
+          else
+            echo "All modified HTML files passed HTMLHint."
+          fi
             
       - name: Mount EFS
         run: |
@@ -82,9 +81,6 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-
- #     - name: Set Correct Permissions Inside Container
- #       run: sudo chown -R 100:102 stuff/opt
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
@@ -169,5 +165,3 @@ jobs:
         run: |
           docker ps -q | xargs -r docker stop || true
           docker ps -aq | xargs -r docker rm || true
-      
-
