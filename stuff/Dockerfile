@@ -27,11 +27,16 @@ RUN adduser --system --disabled-password --group status-page
 WORKDIR /opt/status-page
 
 # Ensure the non-root user can write to this directory
-RUN mkdir -p /opt/status-page && chown -R status-page:status-page /opt/status-page
-RUN chmod -R 777 /opt/status-page  # Full permissions (for debugging)
+RUN mkdir -p /opt/status-page/venv && chown -R status-page:status-page /opt/status-page
 
 # Switch to the non-root user
 USER status-page
+
+# Create the virtual environment during the build stage
+RUN python3 -m venv /opt/status-page/venv
+
+# Copy the application code (assuming you have an "app" directory)
+COPY --chown=status-page:status-page . /opt/status-page
 
 # Expose the application port
 EXPOSE 8001
