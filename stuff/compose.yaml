@@ -38,6 +38,8 @@ services:
       echo 'Starting gunicorn...' &&
       export PYTHONPATH=/opt/status-page/statuspag &&
       gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
+    user: status-page
+
 
 #  nginx:
 #    build:

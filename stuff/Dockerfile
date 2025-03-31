@@ -27,8 +27,14 @@ WORKDIR /opt
 #Expose the application port (Gunicorn typically runs on 8001)
 EXPOSE 8001
 #add user
-RUN adduser --system --group status-page
+# RUN adduser --system --group status-page
 #RUN chown -R status-page:status-page /opt
+
+# Create non-root user and group
+RUN adduser --system --disabled-password --group status-page
+
+# Set permissions for /opt (or at least your app folder)
+RUN chown -R status-page:status-page /opt
 
 #USER status-page
 
