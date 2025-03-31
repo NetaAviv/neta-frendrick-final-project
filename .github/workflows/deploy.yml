@@ -35,6 +35,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq nfs-common postgresql-client
 
+      - name: Check Modified HTML Files with htmlhint
+        run: |
+          echo "Checking for modified HTML files..."
+          MODIFIED_FILES=$(git diff --name-only origin/Development...HEAD | grep '.html$' || true)
+
+            if [[ -z "$MODIFIED_FILES" ]]; then
+              echo "No HTML files changed. Skipping htmlhint."
+              exit 0
+            fi
+
+            echo "Modified HTML files:"
+            echo "$MODIFIED_FILES"
+
+            HAS_ERRORS=0
+            for file in $MODIFIED_FILES; do
+              echo "Linting $file"
+              htmlhint "$file" || HAS_ERRORS=1
+            done
+
+            if [[ $HAS_ERRORS -ne 0 ]]; then
+              echo "HTMLHint found issues."
+              exit 1
+            else
+              echo "All modified HTML files passed HTMLHint."
+            fi
+            
       - name: Mount EFS
         run: |
           sudo mkdir -p /mnt/efs
