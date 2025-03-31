@@ -66,7 +66,10 @@ jobs:
       
       - name: Check status-page logs
         run: docker logs status-page
-      
+
+      - name: Test Application with cURL
+        run: curl -fL http://localhost:8001 || exit 1
+
       - name: Test Connection to RDS PostgreSQL Instance
         run: |
           PSQL_TEST_COMMAND="PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USERNAME }} -d postgres -c 'SELECT 1;'"
