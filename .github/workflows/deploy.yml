@@ -37,6 +37,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq nfs-common postgresql-client
 
+      - name: Install HTMLHint
+        run: |
+          sudo apt-get install -y npm
+          npm install -g htmlhint
+
+
       - name: Check Modified HTML Files with htmlhint
         run: |
           echo "Checking for modified HTML files..."
