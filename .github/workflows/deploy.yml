@@ -50,6 +50,20 @@ jobs:
       
       - name: Set up Docker Compose and Build
         run: docker-compose -f stuff/compose.yaml build
+
+      - name: Full Docker Cleanup Before Build
+        run: |
+          echo "🧹 Stopping and removing all containers, volumes, and networks..."
+          docker-compose -f stuff/compose.yaml down -v --remove-orphans || true
+
+          echo "🧼 Removing old Docker images if any..."
+          docker image ls -q stuff-status-page | xargs -r docker rmi -f || true
+
+          echo "🛠️ Rebuilding the project with no cache..."
+          docker-compose -f stuff/compose.yaml build --no-cache
+
+          echo "🚀 Starting containers..."
+          docker-compose -f stuff/compose.yaml up -d
       
       - name: Run Docker Containers with Compose
         run: docker-compose -f stuff/compose.yaml up -d
