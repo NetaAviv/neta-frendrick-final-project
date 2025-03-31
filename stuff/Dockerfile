@@ -1,4 +1,4 @@
-# Use the official Ubuntu image from Docker Hub as the base image
+# Use the official Ubuntu image from Docker Hub as the base image ho
 FROM ubuntu:latest
 
 
