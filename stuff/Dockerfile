@@ -35,11 +35,11 @@ USER status-page
 # Create the virtual environment during the build stage
 RUN python3 -m venv /opt/status-page/venv
 
-# Copy the application code (assuming you have an "app" directory)
+# Copy the application code
 COPY --chown=status-page:status-page . /opt/status-page
 
 # Expose the application port
 EXPOSE 8001
 
 # Run upgrade script (ensure it exists in the app directory)
-# CMD ["/bin/bash", "-c", "/opt/status-page/upgrade.sh"]
+CMD ["/bin/bash", "-c", "/opt/status-page/upgrade.sh"]
