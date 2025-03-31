@@ -1,6 +1,7 @@
 # Use the official Ubuntu image from Docker Hub as the base image
 FROM ubuntu:latest
 
+
 # Update the package list and install essential packages
 RUN apt-get update && apt-get install -y \
     supervisor \
