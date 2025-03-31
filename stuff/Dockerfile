@@ -42,4 +42,4 @@ COPY --chown=status-page:status-page . /opt/status-page
 EXPOSE 8001
 
 # Run upgrade script (ensure it exists in the app directory)
-CMD ["/bin/bash", "-c", "/opt/status-page/upgrade.sh"]
+# CMD ["/bin/bash", "-c", "/opt/status-page/upgrade.sh"]
