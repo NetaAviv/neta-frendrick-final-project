@@ -28,9 +28,19 @@ spec:
               export PYTHONPATH=opt/status-page/statuspage &&
               gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage
               # /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisor.conf
+
+          resources:  # ✅ Moved this block outside of `args`
+            requests:
+              cpu: "500m"  # Request 0.5 CPU
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"  # Limit to 1 CPU
+              memory: "1Gi"
+
           volumeMounts:
             - name: efs-storage
-              mountPath: /mnt/efs # Mount the EFS volume at this path inside your container
+              mountPath: /mnt/efs  # Mount the EFS volume at this path inside your container
+
       volumes:
         - name: efs-storage
           persistentVolumeClaim:
