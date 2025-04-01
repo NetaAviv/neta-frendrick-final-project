@@ -31,10 +31,10 @@ spec:
 
           resources:  # Adding resource requests and limits section
             requests:
-              cpu: "500m"  # Request 0.5 CPU
+              cpu: "100m" 
               memory: "512Mi"
             limits:
-              cpu: "1000m"  # Limit to 1 CPU
+              cpu: "500m" 
               memory: "1Gi"
 
           volumeMounts:
