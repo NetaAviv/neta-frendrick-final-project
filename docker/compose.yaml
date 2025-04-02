@@ -26,7 +26,7 @@ services:
       - "8001:8001"
     hostname: status-page-server
     volumes:
-      - /test/opt:/opt  # ✅ FIXED: Mounts only /opt/status-page
+      - /test/opt:/opt
     command: >
       /bin/bash -c "
       echo 'showing my files' &&
