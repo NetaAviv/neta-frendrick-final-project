@@ -44,6 +44,9 @@ jobs:
       - name: Copy files to EFS
         run: sudo cp -r stuff/* /mnt/efs/
 
+      - name: Copy files to test directory
+        run: sudo cp -r /mnt/efs/ /test
+
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -62,7 +65,7 @@ jobs:
           docker-compose -f docker/compose.yaml up -d
 
       - name: Wait for the App to Start
-        run: sleep 300
+        run: sleep 200
 
       - name: Check Docker Containers
         run: docker ps -a
