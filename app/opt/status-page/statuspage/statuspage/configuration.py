@@ -10,54 +10,38 @@ ALLOWED_HOSTS = ['*']
 
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
-DATABASE = {
-    'NAME': 'statuspage',         # Database name
-    'USER': 'postgres',               # PostgreSQL username
-    'PASSWORD': '12netafred',           # PostgreSQL password
-    'HOST': 'neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com',      # Database server
-    'PORT': '',               # Database port (leave blank for default)
-    'CONN_MAX_AGE': 300,      # Max database connection age
-}
 
+DATABASE = {
+    'NAME': 'statuspage',
+    'USER': os.getenv('DB_USER', 'postgres'),  # Default to 'postgres' if not set
+    'PASSWORD': os.getenv('DB_PASSWORD', ''),  # Empty string if not set
+    'HOST': os.getenv('DB_HOST', 'neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com'),
+    'PORT': os.getenv('DB_PORT', ''),  # Default PostgreSQL port is 5432
+    'CONN_MAX_AGE': 300,
+}
 # Redis database settings. Redis is used for caching and for queuing background tasks. A separate configuration exists
 # for each. Full connection details are required.
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'CHANGE_ME')  # Set a secure default or raise an error
+
 REDIS = {
     'tasks': {
-        'HOST': 'redis-server',
-        'PORT': 6379,
-        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
-        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
-        # 'SENTINEL_SERVICE': 'status-page',
-        'PASSWORD': '',
+        'HOST': os.getenv('REDIS_HOST', 'redis-server'),
+        'PORT': int(os.getenv('REDIS_PORT', 6379)),
+        'PASSWORD': os.getenv('REDIS_PASSWORD', ''),
         'DATABASE': 0,
         'SSL': False,
-        # Set this to True to skip TLS certificate verification
-        # This can expose the connection to attacks, be careful
-        # 'INSECURE_SKIP_TLS_VERIFY': False,
     },
     'caching': {
-        'HOST': 'redis-server',
-        'PORT': 6379,
-        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
-        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
-        # 'SENTINEL_SERVICE': 'statuspage',
-        'PASSWORD': '',
+        'HOST': os.getenv('REDIS_HOST', 'redis-server'),
+        'PORT': int(os.getenv('REDIS_PORT', 6379)),
+        'PASSWORD': os.getenv('REDIS_PASSWORD', ''),
         'DATABASE': 1,
         'SSL': False,
-        # Set this to True to skip TLS certificate verification
-        # This can expose the connection to attacks, be careful
-        # 'INSECURE_SKIP_TLS_VERIFY': False,
     }
 }
-
 # Define the URL which will be used e.g. in E-Mails
 SITE_URL = ""
-
-# This key is used for secure generation of random numbers and strings. It must never be exposed outside of this file.
-# For optimal security, SECRET_KEY should be at least 50 characters in length and contain a mix of letters, numbers, and
-# symbols. Status-Page will not run without this defined. For more information, see
-# https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-SECRET_KEY
-SECRET_KEY = 'L1=FZBPA%Gi8$xrLLBK!@KWj*KAo-RmUEVsZXTGJ2P^Nh(z)Lx'
 
 #
 # Optional Settings
