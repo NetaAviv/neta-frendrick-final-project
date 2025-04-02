@@ -45,7 +45,7 @@ jobs:
         run: sudo cp -r stuff/* /mnt/efs/
 
       - name: Copy files to test directory
-        run: sudo cp -r /mnt/efs/ /test
+        run: sudo cp -r /mnt/efs/* /test/
 
       - name: Install Docker Compose
         run: |
