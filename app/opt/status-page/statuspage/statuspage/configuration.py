@@ -15,8 +15,8 @@ import os
 DATABASE = {
     'NAME': 'statuspage',
     'USER': os.getenv('DB_USER', 'postgres'),  # Default to 'postgres' if not set
-    'PASSWORD': os.getenv('DB_PASSWORD', ''),  # Empty string if not set
-    'HOST': os.getenv('DB_HOST', 'neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com'),
+    'PASSWORD': os.getenv('DB_PASSWORD'),  # Empty string if not set
+    'HOST': os.getenv('DB_HOST'),
     'PORT': os.getenv('DB_PORT', ''),  # Default PostgreSQL port is 5432
     'CONN_MAX_AGE': 300,
 }
