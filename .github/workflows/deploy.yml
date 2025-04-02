@@ -5,7 +5,7 @@ on:
     branches:
       - Develop
   workflow_dispatch:
-  
+
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
   AWS_REGION: us-east-1
@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE
           sudo chmod -R u+w $GITHUB_WORKSPACE
-      
+
       - name: Checkout Repository (Develop Branch)
         uses: actions/checkout@v3
 
@@ -51,17 +51,25 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Fetch and Checkout Devops Branch for Build
+      - name: Fetch and Checkout DevOps Branch for Build
         run: |
           git fetch origin Devops
           git checkout origin/Devops -- docker/
 
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
       - name: Full Docker Cleanup Before Build
         run: |
-          docker-compose -f docker/compose.yaml down -v --remove-orphans || true
+          docker-compose --env-file .env -f docker/compose.yaml down -v --remove-orphans || true
           docker image ls -q docker-status-page | xargs -r docker rmi -f || true
-          docker-compose -f docker/compose.yaml build --no-cache
-          docker-compose -f docker/compose.yaml up -d
+          docker-compose --env-file .env -f docker/compose.yaml build --no-cache
+          docker-compose --env-file .env -f docker/compose.yaml up -d
+
 
       - name: Wait for the App to Start
         run: sleep 120
@@ -77,7 +85,7 @@ jobs:
 
       - name: Test Connection to RDS PostgreSQL Instance
         run: |
-          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USERNAME }} -d postgres -c 'SELECT 1;'
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USER }} -d postgres -c 'SELECT 1;'
 
       - name: Run Snyk Security Scan
         uses: snyk/actions/docker@master
@@ -102,8 +110,15 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
       - name: Build Docker Image
-        run: docker-compose -f docker/compose.yaml build status-page
+        run: docker-compose --env-file .env -f docker/compose.yaml build status-page
 
       - name: Get Latest Version Number
         id: get-version
@@ -127,7 +142,7 @@ jobs:
           docker push $REPO_URI:latest
 
       - name: Stop and Remove Containers
-        run: docker-compose -f docker/compose.yaml down
+        run: docker-compose --env-file .env -f docker/compose.yaml down
 
       - name: Cleanup Running Containers
         run: |
