@@ -14,7 +14,7 @@ import os
 
 DATABASE = {
     'NAME': 'statuspage',
-    'USER': os.getenv('DB_USER', 'postgres'),  # Default to 'postgres' if not set
+    'USER': os.getenv('DB_USERNAME', 'postgres'),  # Default to 'postgres' if not set
     'PASSWORD': os.getenv('DB_PASSWORD'),  # Empty string if not set
     'HOST': os.getenv('DB_HOST'),
     'PORT': os.getenv('DB_PORT', ''),  # Default PostgreSQL port is 5432
