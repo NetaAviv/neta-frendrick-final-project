@@ -26,9 +26,11 @@ services:
       - "8001:8001"
     hostname: status-page-server
     volumes:
-      - /test:/opt  # ✅ FIXED: Mounts only /opt/status-page
+      - /test :/opt  # ✅ FIXED: Mounts only /opt/status-page
     command: >
       /bin/bash -c "
+      echo "showing my files" &&
+      ls /opt
       echo 'Running upgrade.sh...' &&
       bash /opt/status-page/upgrade.sh &&
       source /opt/status-page/venv/bin/activate &&
