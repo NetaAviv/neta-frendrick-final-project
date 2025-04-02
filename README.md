@@ -6,6 +6,12 @@ A **Status Page** is a web application that provides real-time information about
 ## Project Overview
 This project focuses on designing and deploying the **infrastructure and architecture** for an existing **Status Page** application on **AWS**. The deployment is fully containerized and runs on **Amazon EKS** with a **highly available RDS (Multi-AZ)** database. It also features **Argo CD** for continuous deployment, **GitHub Actions** for automation, and robust **monitoring and security measures**.
 
+## Branch Structure
+This project is organized into three main branches:
+ - **Devops Branch**: Contains all files related to Docker and Argo CD configuration.
+ - **Develop Branch**: Contains the application code, ensuring that developers only modify code within this branch.
+ - **Master Branch**: Serves as the main branch, consolidating files from both Devops and Develop.
+
 ## Architecture
 - **CI/CD**: GitHub Actions automates testing, security scanning, and deployment.
 - **Containerization**: The application is packaged as a Docker container.
