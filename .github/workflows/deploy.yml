@@ -52,14 +52,14 @@ jobs:
       - name: Fetch and Checkout Devops Branch for Build
         run: |
           git fetch origin Devops
-          git checkout origin/Devops -- stuff/
+          git checkout origin/Devops -- docker/
 
       - name: Full Docker Cleanup Before Build
         run: |
           docker-compose -f stuff/compose.yaml down -v --remove-orphans || true
           docker image ls -q stuff-status-page | xargs -r docker rmi -f || true
-          docker-compose -f stuff/compose.yaml build --no-cache
-          docker-compose -f stuff/compose.yaml up -d
+          docker-compose -f docker/compose.yaml build --no-cache
+          docker-compose -f docker/compose.yaml up -d
 
       - name: Wait for the App to Start
         run: sleep 120
