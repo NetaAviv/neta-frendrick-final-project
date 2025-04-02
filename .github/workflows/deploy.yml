@@ -3,7 +3,7 @@ name: Test and Deploy Status Page
 on:
   push:
     branches:
-      - Development
+      - Develop
   workflow_dispatch:
 
 env:
@@ -48,8 +48,10 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
       
-      - name: Set up Docker Compose and Build
-        run: docker-compose -f stuff/compose.yaml build
+      - name: Checkout Devops Branch for Build
+        run: |
+         git fetch origin Devops
+         git checkout Devops -- stuff/
 
       - name: Full Docker Cleanup Before Build
         run: |
@@ -67,6 +69,9 @@ jobs:
       
       - name: Run Docker Containers with Compose
         run: docker-compose -f stuff/compose.yaml up -d
+
+      - name: Switch Back to Develop Branch
+        run: git checkout Develop
       
       - name: Wait for the App to Start
         run: sleep 120
