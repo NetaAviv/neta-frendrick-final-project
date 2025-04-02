@@ -14,6 +14,12 @@ services:
   status-page:
     build: .
     container_name: status-page
+    environment:
+      REDIS_HOST: redis-server
+      DB_USERNAME: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
     restart: "no"  # Prevents auto-restarting after script runs
     depends_on:
       - redis
