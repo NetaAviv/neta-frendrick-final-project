@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE
           sudo chmod -R u+w $GITHUB_WORKSPACE
-      
+
       - name: Checkout Repository (Develop Branch)
         uses: actions/checkout@v3
 
@@ -51,24 +51,24 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Fetch and Checkout Devops Branch for Build
+      - name: Fetch and Checkout DevOps Branch for Build
         run: |
           git fetch origin Devops
           git checkout origin/Devops -- docker/
 
-      - name: Export Secrets as Environment Variables
+      - name: Create .env file
         run: |
-          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
 
       - name: Full Docker Cleanup Before Build
         run: |
-          docker-compose -f docker/compose.yaml down -v --remove-orphans || true
+          docker-compose --env-file .env -f docker/compose.yaml down -v --remove-orphans || true
           docker image ls -q docker-status-page | xargs -r docker rmi -f || true
-          docker-compose -f docker/compose.yaml build --no-cache
-          docker-compose -f docker/compose.yaml up -d
+          docker-compose --env-file .env -f docker/compose.yaml build --no-cache
+          docker-compose --env-file .env -f docker/compose.yaml up -d
 
       - name: Wait for the App to Start
         run: sleep 120
@@ -84,7 +84,7 @@ jobs:
 
       - name: Test Connection to RDS PostgreSQL Instance
         run: |
-          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h $DB_HOST -U $DB_USER -d postgres -c 'SELECT 1;'
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h neta-fred-database.cx248m4we6k7.us-east-1.rds.amazonaws.com -U ${{ secrets.DB_USER }} -d postgres -c 'SELECT 1;'
 
       - name: Run Snyk Security Scan
         uses: snyk/actions/docker@master
@@ -109,24 +109,31 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
       - name: Build Docker Image
-        run: docker-compose -f docker/compose.yaml build status-page
+        run: docker-compose --env-file .env -f docker/compose.yaml build status-page
 
       - name: Get Latest Version Number
         id: get-version
         run: |
           LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'imageDetails[*].imageTags' --output json | jq -r 'flatten | select(.[] | test("^docker-status-page-version-[0-9]+$"))' | grep -o '[0-9]*' | sort -nr | head -n1)
           if [[ -z "$LATEST_VERSION" ]]; then
-            NEW_VERSION="docker-status-page-version-1"
+            NEW_VERSION="version-1"
           else
-            NEW_VERSION="docker-status-page-version-$((LATEST_VERSION + 1))"
+            NEW_VERSION="version-$((LATEST_VERSION + 1))"
           fi
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Tag and Push Image to ECR
         run: |
-          docker tag docker-status-page:latest $REPO_URI:$NEW_VERSION
-          docker push $REPO_URI:$NEW_VERSION
+          docker tag docker-status-page:latest $REPO_URI:docker-status-page-$NEW_VERSION
+          docker push $REPO_URI:docker-status-page-$NEW_VERSION
 
       - name: Tag the Image as Latest and Push to ECR
         run: |
@@ -134,7 +141,7 @@ jobs:
           docker push $REPO_URI:latest
 
       - name: Stop and Remove Containers
-        run: docker-compose -f docker/compose.yaml down
+        run: docker-compose --env-file .env -f docker/compose.yaml down
 
       - name: Cleanup Running Containers
         run: |
