@@ -14,19 +14,23 @@ services:
   status-page:
     build: .
     container_name: status-page
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      REDIS_HOST: redis-server
     restart: "no"  # Prevents auto-restarting after script runs
     depends_on:
       - redis
     networks:
       - mynetwork
-    environment:
-      REDIS_HOST: redis-server
     ports:
       - "8000:8000"
       - "8001:8001"
     hostname: status-page-server
     volumes:
-      - /test/opt:/opt  # ✅ FIXED: Mounts only /opt/status-page
+      - /test/opt:/opt
     command: >
       /bin/bash -c "
       echo 'showing my files' &&
@@ -40,7 +44,6 @@ services:
       echo 'Starting gunicorn...' &&
       export PYTHONPATH=/opt/status-page/statuspag &&
       gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
-
 
 networks:
   mynetwork:
