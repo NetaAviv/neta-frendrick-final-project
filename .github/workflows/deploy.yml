@@ -41,10 +41,10 @@ jobs:
           sudo mount -t nfs4 -o nfsvers=4.1,tcp,hard,timeo=600,retrans=2 fs-02bded1456fa64b56.efs.us-east-1.amazonaws.com:/ /mnt/efs
 
       - name: Copy files to EFS
-        run: sudo cp -r stuff/* /mnt/efs/
+        run: sudo cp -r app/* /mnt/efs/
 
       - name: Copy files to test directory
-        run: sudo cp -r stuff/* /test/
+        run: sudo cp -r app/* /test/
 
       - name: Install Docker Compose
         run: |
@@ -59,7 +59,7 @@ jobs:
       - name: Full Docker Cleanup Before Build
         run: |
           docker-compose -f docker/compose.yaml down -v --remove-orphans || true
-          docker image ls -q stuff-status-page | xargs -r docker rmi -f || true
+          docker image ls -q docker-status-page | xargs -r docker rmi -f || true
           docker-compose -f docker/compose.yaml build --no-cache
           docker-compose -f docker/compose.yaml up -d
 
@@ -108,7 +108,7 @@ jobs:
       - name: Get Latest Version Number
         id: get-version
         run: |
-          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'imageDetails[*].imageTags' --output json | jq -r 'flatten | select(.[] | test("^stuff-status-page-version-[0-9]+$"))' | grep -o '[0-9]*' | sort -nr | head -n1)
+          LATEST_VERSION=$(aws ecr describe-images --repository-name neta-fred/final-project --query 'imageDetails[*].imageTags' --output json | jq -r 'flatten | select(.[] | test("^docker-status-page-version-[0-9]+$"))' | grep -o '[0-9]*' | sort -nr | head -n1)
           if [[ -z "$LATEST_VERSION" ]]; then
             NEW_VERSION="version-1"
           else
