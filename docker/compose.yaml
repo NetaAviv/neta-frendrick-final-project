@@ -29,7 +29,7 @@ services:
       - /test :/opt  # ✅ FIXED: Mounts only /opt/status-page
     command: >
       /bin/bash -c "
-      echo "showing my files" &&
+      echo 'showing my files' &&
       ls /opt
       echo 'Running upgrade.sh...' &&
       bash /opt/status-page/upgrade.sh &&
