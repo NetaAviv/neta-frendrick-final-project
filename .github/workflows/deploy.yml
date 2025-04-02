@@ -70,6 +70,7 @@ jobs:
           docker-compose --env-file .env -f docker/compose.yaml build --no-cache
           docker-compose --env-file .env -f docker/compose.yaml up -d
 
+
       - name: Wait for the App to Start
         run: sleep 120
 
