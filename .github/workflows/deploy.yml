@@ -9,6 +9,10 @@ on:
 env:
   REPO_URI: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project
   AWS_REGION: us-east-1
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
 jobs:
   build-and-test:
