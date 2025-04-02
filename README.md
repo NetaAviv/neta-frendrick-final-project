@@ -12,10 +12,6 @@ This project sets up the **infrastructure and architecture** for an existing **S
 - **Monitoring**: Integrated with **Prometheus & Grafana**.
 - **Logging**: Uses **AWS CloudWatch**.
 
-## Features
-- Displays real-time status of services.
-- Supports rolling updates with **Argo CD**.
-- **Email Notifications** sent upon successful deployment.
 
 ## Deployment Workflow
 1. Developer pushes changes to GitHub.
@@ -32,6 +28,10 @@ This project sets up the **infrastructure and architecture** for an existing **S
 ### Prerequisites
 - AWS account with necessary permissions.
 - AWS CLI, kubectl, and Argo CD CLI installed.
+- EKS cluster
+- Node group inside the eks cluster with SG that can access the RDS
+- EFS (elastic file system) with 2 access points (one for staging and the other for production) 
+- RDS (Multi AZs)
 
 ### Steps
 1. Clone the repository:
