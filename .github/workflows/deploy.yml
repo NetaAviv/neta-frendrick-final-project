@@ -82,7 +82,7 @@ jobs:
       - name: Run Snyk Security Scan
         uses: snyk/actions/docker@master
         with:
-          image: stuff-status-page:latest
+          image: docker-status-page:latest
           args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -118,12 +118,12 @@ jobs:
 
       - name: Tag and Push Image to ECR
         run: |
-          docker tag stuff-status-page:latest $REPO_URI:stuff-status-page-$NEW_VERSION
-          docker push $REPO_URI:stuff-status-page-$NEW_VERSION
+          docker tag docker-status-page:latest $REPO_URI:docker-status-page-$NEW_VERSION
+          docker push $REPO_URI:docker-status-page-$NEW_VERSION
 
       - name: Tag the Image as Latest and Push to ECR
         run: |
-          docker tag stuff-status-page:latest $REPO_URI:latest
+          docker tag docker-status-page:latest $REPO_URI:latest
           docker push $REPO_URI:latest
 
       - name: Stop and Remove Containers
