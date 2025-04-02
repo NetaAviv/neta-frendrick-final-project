@@ -1,0 +1,16 @@
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteMany"]
+          storageClassName: efs-sc-prometheus
+          volumeName: prometheus-pv
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  persistence:
+    enabled: true
+    existingClaim: grafana-efs-pvc

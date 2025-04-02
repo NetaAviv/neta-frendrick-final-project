@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-server
+  template:
+    metadata:
+      labels:
+        app: nginx-server
+    spec:
+      containers:
+      - name: nginx-server
+        # image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/neta-fred/final-project:nginx
+        image: nginx
+        imagePullPolicy: Always
+        # volumeMounts:
+        #   - name: config-volume
+        #     mountPath: /etc/nginx/nginx.conf
+        #     subPath: nginx.conf
+        command: ["/bin/bash", "-c"]
+        args:
+           - |
+
+              echo " Creating NGINX directory structure";
+              mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled;
+
+              echo "Linking config into sites-enabled";
+              mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled/
+              cp /mnt/efs/opt/nginx.conf /etc/nginx/sites-available/status-page.conf ;
+              cp /mnt/efs/opt/nginx.conf /etc/nginx/nginx.conf
+              mkdir -p /opt/status-page/statuspage/static/
+              cp /mnt/efs/opt/status-page/statuspage/static/* /opt/status-page/statuspage/static/
+              rm -f /etc/nginx/sites-enabled/default;
+              ln -s /etc/nginx/sites-available/status-page.conf /etc/nginx/sites-enabled/status-page.conf;
+
+              echo "🚀 Starting NGINX...";
+              nginx -g 'daemon off;'
+        volumeMounts:
+            - name: efs-storage
+              mountPath: /mnt/efs/
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: efs-pvc-production  # Reference the PVC you created
+              
+        # command: ["nginx", "-g", "daemon off;"]
+        # ports:
+        # - containerPort: 80
+        # - containerPort: 443
+      # volumes:
+      #   - name: config-volume
+      #     configMap:
+      #       name: nginx-config
+---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: nginx-server
+#   annotations:
+#     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+#     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:992382545251:certificate/fcf5e0fa-9c8c-444e-8ba1-957231dad5ae
+#     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+# spec:
+#   selector:
+#     app: nginx-server
+#   ports:
+#     - name: http
+#       protocol: TCP
+#       port: 80
+#       targetPort: 80
+#     - name: https
+#       protocol: TCP
+#       port: 443
+#       targetPort: 80
+#   type: LoadBalancer
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-server
+  labels:
+    app: nginx-server
+spec:
+  selector:
+    app: nginx-server
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80        # The Ingress will forward to this
+      targetPort: 80  # Your container listens on this port
+  type: ClusterIP     # No external IP - ALB Ingress will handle external access
+

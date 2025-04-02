@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: status-page-app-production
+  namespace: argocd
+spec:
+  destination:
+    namespace: production
+    server: https://kubernetes.default.svc
+  source:
+    path: kube/production
+    repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+    targetRevision: Develop
+  sources:
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: Develop
+      path: kube/production/storage
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: Develop
+      path: kube/production/application
+    - repoURL: https://github.com/NetaAviv/neta-frendrick-final-project.git
+      targetRevision: Develop
+      path: kube/production/ingress
+  project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

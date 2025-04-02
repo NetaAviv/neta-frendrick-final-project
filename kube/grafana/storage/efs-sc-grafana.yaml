@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs-sc-grafana
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: fs-0e3125e5256932707
+  accessPointId: fsap-0af2c8df60db75146
+  directoryPerms: "700"
+mountOptions:
+  - tls
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
