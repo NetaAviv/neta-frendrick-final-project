@@ -64,7 +64,7 @@ jobs:
           docker-compose -f docker/compose.yaml up -d
 
       - name: Wait for the App to Start
-        run: sleep 200
+        run: sleep 120
 
       - name: Check Docker Containers
         run: docker ps -a
